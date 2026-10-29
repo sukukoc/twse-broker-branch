@@ -68,6 +68,19 @@ tbody tr{cursor:pointer}tbody tr:hover{background:var(--chip)}tbody tr.sel{backg
 .tag{display:inline-block;font-size:10.5px;padding:0 6px;border-radius:6px;background:var(--tag);color:var(--tagfg);margin-left:5px;vertical-align:1px}
 details{padding:8px 14px 14px}summary{cursor:pointer;color:var(--tagfg);font-weight:600;padding:4px 0}
 #ws td:nth-child(3),#ws th:nth-child(3){text-align:left}
+#tab{margin-bottom:10px;background:var(--brand2)}#tab button{color:#c9cdf0}#tab button.on{background:var(--acc);color:#1b1400}
+body.mb .u-only{display:none!important}body:not(.mb) .b-only{display:none!important}
+#dd:not(.mb) .bd-only{display:none!important}#dd.mb .ud-only{display:none!important}
+.star{display:inline-block;font-size:10.5px;padding:0 6px;border-radius:6px;background:#ffe9b8;color:#7a4b00;margin-left:5px;vertical-align:1px;white-space:nowrap}
+@media (prefers-color-scheme:dark){.star{background:#4a3a10;color:#ffd77a}}
+.fam{background:var(--chip);color:var(--mut)}
+.why{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}.why span{font-size:11.5px;background:var(--sel);color:var(--fg);border-radius:8px;padding:2px 8px}
+.acc{display:inline-block;font-size:11px;background:var(--chip);color:var(--mut);border-radius:20px;padding:1px 8px;margin-left:6px}
+.sub{padding:8px 14px 2px;font-size:13px;font-weight:700;border-top:1px solid var(--line);margin-top:6px}
+.sub small{font-weight:400;color:var(--mut);margin-left:6px}
+td small.ws{display:block;color:var(--mut);font-size:11px;white-space:normal;max-width:15em;text-align:left}
+.sc-b td.l b{max-width:6.5em}
+.sbar{display:inline-block;width:40px;height:6px;border-radius:3px;background:var(--chip);vertical-align:middle;margin-left:4px;overflow:hidden}.sbar i{display:block;height:100%;background:var(--acc)}
 footer{max-width:860px;margin:0 auto;padding:0 10px 30px}
 </style>
 </head>
@@ -75,19 +88,29 @@ footer{max-width:860px;margin:0 auto;padding:0 10px 30px}
 <header><div class="brand"><div class="logo"></div><div><h1>權證分點雷達</h1><p>上市權證 依標的彙總的投資人淨買賣與分點進出</p></div></div></header>
 <main>
 <div class="panel">
-  <div class="seg" id="side"><button data-v="call" class="on">認購</button><button data-v="put">認售</button></div>
+  <div class="seg" id="tab"><button data-v="u" class="on">標的排行</button><button data-v="b">分點大戶 ⭐</button></div>
+  <div class="seg u-only" id="side"><button data-v="call" class="on">認購</button><button data-v="put">認售</button></div>
   <div class="row">
     <label for="date">日期</label><select id="date"></select>
-    <label for="days">統計天數</label>
-    <select id="days"><option value="1">1 日</option><option value="2">2 日</option><option value="3">3 日</option><option value="5">5 日</option><option value="10">10 日</option><option value="20">20 日</option></select>
+    <label for="days" class="u-only">統計天數</label>
+    <select id="days" class="u-only"><option value="1">1 日</option><option value="2">2 日</option><option value="3">3 日</option><option value="5">5 日</option><option value="10">10 日</option><option value="20">20 日</option></select>
   </div>
-  <div class="search"><input id="q" list="ql" placeholder="輸入代號或名稱，例如 2330 / 華新科" autocomplete="off" enterkeyhint="search"></div>
+  <div class="search u-only"><input id="q" list="ql" placeholder="輸入代號或名稱，例如 2330 / 華新科" autocomplete="off" enterkeyhint="search"></div>
   <datalist id="ql"></datalist>
   <div class="msg" id="msg"></div>
 </div>
-<section class="sec buy"><div class="sh"><h2 id="h1"></h2><span class="chip" id="n1"></span><span class="meta" id="d1"></span></div><div class="sc"><table id="t1"></table></div></section>
-<section class="sec sell"><div class="sh"><h2 id="h2"></h2><span class="chip" id="n2"></span><span class="meta" id="d2"></span></div><div class="sc"><table id="t2"></table></div></section>
-<section class="sec"><div class="note">
+<section class="sec buy u-only"><div class="sh"><h2 id="h1"></h2><span class="chip" id="n1"></span><span class="meta" id="d1"></span></div><div class="sc"><table id="t1"></table></div></section>
+<section class="sec sell u-only"><div class="sh"><h2 id="h2"></h2><span class="chip" id="n2"></span><span class="meta" id="d2"></span></div><div class="sc"><table id="t2"></table></div></section>
+<section class="sec b-only"><div class="sh"><h2>分點大戶雷達</h2><span class="chip" id="bn"></span><span class="meta" id="bd"></span></div>
+<div class="seg" id="bf" style="margin:0 12px 8px"><button data-v="star" class="on">⭐ 重點分點</button><button data-v="all">全部（依分數）</button><button data-v="fam">媒體點名</button></div>
+<div class="sc sc-b"><table id="tb"></table></div></section>
+<section class="sec b-only"><div class="note">
+<b>分點大戶分數（0–100）</b>：只看非發行商分點（發行券商總公司代號一律排除）在權證上的投資人行為。<br>
+① 規模 30 分：當日權證淨買金額（對數尺度，50 萬起算、5,000 萬滿分）。② 集中 15 分：淨買集中在第一大標的的比例。③ 積極 15 分：買進權證的價外程度（價外 &gt;5% 給滿）與剩餘天數（≤30 天給滿）。④ 現股同步 15 分：同一分點當天也買超該標的現股（認售則賣超），第一大標的同步 15 分、其他標的同步 8 分。⑤ 連續加碼 10 分：最近 5 個資料日在同一標的同方向淨買的天數。⑥ 媒體點名 10 分：公開報導點名過的短線／權證大戶分點（財訊 2021「不只凱基台北分點」、CMoney 權證小哥文章）。⑦ 戰績 ±15 分：隔日進場勝率（至少 5 次進場才計分）。②–④ 需淨買 ≥100 萬。<b>⭐ 重點分點</b>＝分數 ≥45 且淨買 ≥300 萬。<br>
+<b>戰績</b>：所有歷史成交依先進先出（FIFO）配對；已實現＝賣出價 − 配對買進成本，未實現＝剩餘部位 × (最新收盤 − 成本)，當沖＝同日買賣配對的價差。資料庫開始前就持有的部位無法得知成本，這部分賣出不計入。<b>進場勝率</b>：某日在某標的某方向淨買 ≥50 萬算一次進場，看之後 1/3/5/10 個交易日買進權證籃子的市值變化（無報價時改用標的漲跌，認售取反）是否為正。<br>
+分點歷史只從開始抓資料那天起累積（證交所買賣日報表只提供當日），天數不足時戰績會顯示「累積中」。僅供研究，不構成投資建議。
+</div></section>
+<section class="sec u-only"><div class="note">
 <b>淨買賣(萬)</b>：該標的所有認購（含牛證）或認售（含熊證）權證，排除「發行商自家分點」後的投資人 買進 − 賣出 金額（萬元）。發行商分點＝發行券商總公司（自營／造市）代號，只在它自己發行的權證上視為發行商；造市商是投資人的對手方，所以投資人淨買 ≈ 發行商淨賣。點標的可看分點明細，標「發行商」的分點有買賣自家發行的權證。<br>
 <b>連漲跌</b>：標的連續上漲（＋）／下跌（−）天數。<b>日漲跌%／5日%</b>：以收盤漲跌計算的報酬率；指數類標的用加權指數或類股指數。<br>
 <b>自營避險%</b>：標的當日自營商避險買賣超股數 ÷ 成交股數（證交所三大法人 T86）；多日為加總後的比率。<br>
@@ -99,11 +122,13 @@ footer{max-width:860px;margin:0 auto;padding:0 10px 30px}
   <div class="grab"></div>
   <button class="x" id="x" aria-label="關閉">×</button>
   <div class="sh-h"><h2 id="dt"></h2><div class="kv" id="dk"></div>
-    <div class="seg" id="sort"><button data-v="net">淨買</button><button data-v="nsell">淨賣</button><button data-v="buy">買進</button><button data-v="sell">賣出</button><button data-v="gross">成交</button></div>
+    <div class="why bd-only" id="bwhy"></div>
+    <div class="seg ud-only" id="sort"><button data-v="net">淨買</button><button data-v="nsell">淨賣</button><button data-v="buy">買進</button><button data-v="sell">賣出</button><button data-v="gross">成交</button></div>
   </div>
   <div class="sh-b">
-    <table id="br"><thead><tr><th>#</th><th>分點</th><th>買進(萬)</th><th>賣出(萬)</th><th>淨買賣(萬)</th></tr></thead><tbody></tbody></table>
-    <details><summary id="wsum"></summary><table id="ws"><thead><tr><th class="l">代號</th><th class="l">權證</th><th>發行</th><th>成交(萬)</th><th>張數</th></tr></thead><tbody></tbody></table></details>
+    <div class="ud-only"><table id="br"><thead><tr><th>#</th><th>分點</th><th>買進(萬)</th><th>賣出(萬)</th><th>淨買賣(萬)</th></tr></thead><tbody></tbody></table>
+    <details><summary id="wsum"></summary><table id="ws"><thead><tr><th class="l">代號</th><th class="l">權證</th><th>發行</th><th>成交(萬)</th><th>張數</th></tr></thead><tbody></tbody></table></details></div>
+    <div class="bd-only" id="bbody"></div>
   </div>
 </div></div>
 <script>
@@ -113,6 +138,7 @@ const wan=(n,d=0)=>(n/1e4).toLocaleString('zh-TW',{minimumFractionDigits:d,maxim
 const cls=n=>n>0?'up':n<0?'dn':'';
 const fcls=n=>n>0?'fb':n<0?'fs':''; // flow colours (amber=淨買, teal=淨賣); red/green only for prices
 const pct=n=>n==null?'':(Math.round(n*100)/100).toFixed(2);
+let BR={}, BRD=null, bfilter='star', tab='u';
 let DATES=[], cache={}, AGG=null, side='call', cur=null, sortBy='net';
 async function getDay(d){ if(!cache[d]){const r=await fetch(`data/${d}.json`); if(!r.ok) throw new Error(`${d} ${r.status}`); cache[d]=await r.json();} return cache[d]; }
 
@@ -140,7 +166,7 @@ async function aggregate(){
   AGG={U,brn,ds,end};
   $('#msg').textContent = ds.length<n ? `目前只有 ${ds.length} 個交易日的資料（${ds.at(-1)} ~ ${ds[0]}），以實際天數計算。` : (n>1?`統計 ${ds.at(-1)} ~ ${ds[0]}，共 ${n} 個交易日。`:'');
   $('#ql').innerHTML=Object.values(U).sort((a,b)=>a.id.localeCompare(b.id)).map(u=>`<option value="${esc(u.id)} ${esc(u.n)}">`).join('');
-  render();
+  render(); loadBR();
 }
 const HEAD='<thead><tr><th>#</th><th class="l">標的</th><th>淨買賣<br>(萬)</th><th>連<br>漲跌</th><th>日<br>漲跌%</th><th>5日<br>%</th><th>自營<br>避險%</th></tr></thead>';
 let MAXA=1;
@@ -165,7 +191,7 @@ function render(){
 }
 function openU(id,from){
   const u=AGG.U[id]; if(!u||!u[side]) return false;
-  cur=id; sortBy= from==='sell' ? 'nsell' : (u[side].inv<0?'nsell':'net'); render(); drill(); document.body.classList.add('open'); $('#dd').classList.add('open'); return true;
+  cur=id; sortBy= from==='sell' ? 'nsell' : (u[side].inv<0?'nsell':'net'); render(); $('#dd').classList.remove('mb'); drill(); $('#dd').classList.add('open'); return true;
 }
 const KEY={net:b=>b[1]-b[2], nsell:b=>b[2]-b[1], buy:b=>b[1], sell:b=>b[2], gross:b=>b[1]+b[2]};
 function drill(){
@@ -180,13 +206,61 @@ function drill(){
   if(sortBy==='net') br=br.filter(b=>b[1]>b[2]); if(sortBy==='nsell') br=br.filter(b=>b[1]<b[2]);
   br.sort((a,b)=>k(b)-k(a)||a[0].localeCompare(b[0]));
   $('#br tbody').innerHTML=br.map((b,i)=>{const n=b[1]-b[2], own=(b[3]+b[4])>0;
-    return `<tr><td>${i+1}</td><td>${esc(b[0])} ${esc(AGG.brn[b[0]]||'')}${own?'<span class="tag">發行商</span>':''}</td><td>${wan(b[1],1)}</td><td>${wan(b[2],1)}</td><td class="${fcls(n)}">${wan(n,1)}</td></tr>`}).join('')||'<tr class="empty"><td colspan="5">沒有符合的分點</td></tr>';
+    const st=BRD&&BRD.map[b[0]]; return `<tr data-b="${esc(b[0])}"><td>${i+1}</td><td>${esc(b[0])} ${esc(AGG.brn[b[0]]||'')}${own?'<span class="tag">發行商</span>':''}${st&&st.star?'<span class="star">⭐重點</span>':''}</td><td>${wan(b[1],1)}</td><td>${wan(b[2],1)}</td><td class="${fcls(n)}">${wan(n,1)}</td></tr>`}).join('')||'<tr class="empty"><td colspan="5">沒有符合的分點</td></tr>';
   const ws=Object.values(x.ws).sort((a,b)=>b[4]-a[4]);
   $('#wsum').textContent=`相關權證（${ws.length} 檔）`;
   $('#ws tbody').innerHTML=ws.map(w=>`<tr><td>${esc(w[0])}</td><td>${esc(w[1])}</td><td>${esc(w[3])}</td><td>${wan(w[4],1)}</td><td>${Math.round(w[5]/1000).toLocaleString()}</td></tr>`).join('');
   $('.sh-b').scrollTop=0;
 }
-function closeDD(){ $('#dd').classList.remove('open'); cur=null; render(); }
+function closeDD(){ $('#dd').classList.remove('open','mb'); cur=null; render(); }
+async function loadBR(){
+  const d=AGG.end; if(!(d in BR)){ try{const r=await fetch(`data/branches/${d}.json`); BR[d]=r.ok?await r.json():null}catch(e){BR[d]=null} }
+  BRD=BR[d]; if(BRD){ BRD.map=Object.fromEntries(BRD.br.map(x=>[x.id,x]));
+    if(!BRD.n_star&&bfilter==='star'){bfilter='all'; $('#bf').querySelectorAll('button').forEach(z=>z.classList.toggle('on',z.dataset.v==='all'))} }
+  renderB();
+}
+const SIDEN={call:'購',put:'售'};
+function trCell(x){const w=x.tr.win['1']; return w&&w[1]?`<span class="${w[0]/w[1]>=.5?'up':'dn'}">${w[0]}/${w[1]}</span>`:'<span class="mut">累積中</span>'}
+function renderB(){
+  if(!BRD){$('#tb').innerHTML='<tbody><tr class="empty"><td>這一天還沒有分點大戶資料</td></tr></tbody>';$('#bn').textContent='';$('#bd').textContent='';return}
+  $('#bn').textContent=`⭐ ${BRD.n_star} 家`; $('#bd').textContent=BRD.ndays<10?`資料累積中（${BRD.ndays} 天）`:`歷史 ${BRD.ndays} 天`;
+  let L=BRD.br; if(bfilter==='star') L=L.filter(x=>x.star); if(bfilter==='fam') L=L.filter(x=>x.fam);
+  const mx=Math.max(1,...L.map(x=>Math.abs(x.net)));
+  $('#tb').innerHTML='<thead><tr><th>#</th><th class="l">分點</th><th>分數</th><th>權證淨買<br>(萬)</th><th class="l">主要標的</th><th>隔日<br>勝率</th></tr></thead><tbody>'+
+   (L.map((x,i)=>{const h=x.hold[0]||{}; const w=Math.max(2,Math.round(Math.abs(x.net)/mx*100));
+    return `<tr data-b="${esc(x.id)}"><td class="rk">${i+1}</td><td class="l nm"><b>${esc(x.n)}</b><small>${esc(x.id)}${x.star?' ⭐':''}${x.fam?' 📰':''}</small></td>`+
+     `<td><b>${Math.round(x.score)}</b><span class="sbar"><i style="width:${Math.min(100,x.score)}%"></i></span></td>`+
+     `<td class="amt"><span class="v ${fcls(x.net)}">${wan(x.net)}</span><span class="bar ${x.net>0?'b':'s'}"><i style="width:${w}%"></i></span></td>`+
+     `<td class="l nm"><b>${esc(h.un||'')}</b><small>${h.side?SIDEN[h.side]+' '+Math.round(x.conc*100)+'%':''}</small></td><td>${trCell(x)}</td></tr>`}).join('')||'<tr class="empty"><td colspan="6">沒有符合的分點</td></tr>')+'</tbody>';
+}
+const sg=n=>n>0?'+'+wan(n):wan(n);
+function openB(id){
+  const x=BRD&&BRD.map[id]; if(!x) return false; const t=x.tr;
+  $('#dt').innerHTML=`${esc(x.n)}（${esc(x.id)}）${x.star?'<span class="star">⭐重點分點</span>':''}`;
+  $('#dk').innerHTML=`<div>分數<b>${x.score}</b></div><div>權證淨買<b class="${fcls(x.net)}">${wan(x.net)} 萬</b></div>`+
+   `<div>買進／賣出<b>${wan(x.buy)}／${wan(x.sell)} 萬</b></div><div>標的數／集中度<b>${x.nund} 檔・${Math.round(x.conc*100)}%</b></div>`+
+   `<div>現股同步<b>${x.cross.length?x.cross.map(c=>c[0]+' '+sg(c[1]*1e4)+'萬').join('、'):(BRD.has_stock?'無':'無現股資料')}</b></div><div>資料天數<b>${BRD.ndays} 天${BRD.ndays<10?'（累積中）':''}</b></div>`;
+  const P=['規模','集中','積極','現股同步','連續加碼','媒體點名','戰績'];
+  $('#bwhy').innerHTML=x.why.map(w=>`<span>${esc(w)}</span>`).join('')+`<span class="mut">分數組成：${x.parts.map((v,i)=>v?P[i]+' '+v:'').filter(Boolean).join('・')}</span>`;
+  const hz=BRD.horizons;
+  let h=`<div class="sub">今日持倉方向（依標的）<small>淨買賣、萬元</small></div><table><thead><tr><th class="l">標的</th><th>淨買賣</th><th>買進</th><th>賣出</th><th>現股淨</th></tr></thead><tbody>`+
+   x.hold.map(u=>`<tr><td class="l"><b>${esc(u.un)}</b> <span class="tag">${SIDEN[u.side]}</span><small class="ws">${u.w.slice(0,3).map(w=>esc(w[1])+' '+sg(w[2])).join('、')}</small></td><td class="${fcls(u.net)}">${wan(u.net,1)}</td><td>${wan(u.buy,1)}</td><td>${wan(u.sell,1)}</td><td class="${fcls(u.sn||0)}">${u.sn==null?'–':wan(u.sn,1)}</td></tr>`).join('')+'</tbody></table>';
+  h+=`<div class="sub">戰績<small>${BRD.ndays<2?'資料累積中：目前只有 '+BRD.ndays+' 天，勝率要等之後的交易日':'FIFO 配對，含本日'}</small></div><div class="kv" style="padding:0 14px">`+
+   `<div>已實現損益<b class="${cls(t.realized)}">${sg(t.realized)} 萬</b></div><div>未實現（依收盤）<b class="${cls(t.unreal)}">${sg(t.unreal)} 萬</b></div>`+
+   `<div>其中當沖價差<b class="${cls(t.dt)}">${sg(t.dt)} 萬</b></div><div>平均持有<b>${t.hold==null?'–':t.hold+' 天'}</b></div>`+
+   `<div>累計成交<b>${wan(t.turnover)} 萬</b></div><div>剩餘部位市值<b>${wan(t.openv)} 萬</b></div>`+
+   hz.map(k=>{const w=t.win[String(k)]; return `<div>${k} 日進場勝率<b>${w&&w[1]?`${w[0]}/${w[1]}（${Math.round(w[0]/w[1]*100)}%）`:'<span class="mut">累積中</span>'}</b></div>`}).join('')+'</div>';
+  if(t.ent.length) h+=`<div class="sub">最近進場<small>之後 N 日 標的%／權證%</small></div><table><thead><tr><th class="l">日期</th><th class="l">標的</th><th>淨買</th>${hz.map(k=>`<th>+${k}日</th>`).join('')}</tr></thead><tbody>`+
+   t.ent.slice().reverse().map(e=>`<tr><td class="l">${e[0].slice(5)}</td><td class="l">${esc(e[1])} ${SIDEN[e[2]]||''}</td><td>${wan(e[3])}</td>${e.slice(4).map(r=>r?`<td><span class="${cls(r[0])}">${r[0]??'–'}</span>／<span class="${cls(r[1])}">${r[1]??'–'}</span></td>`:'<td class="mut">…</td>').join('')}</tr>`).join('')+'</tbody></table>';
+  h+=`<div class="sub">每日權證進出<small>萬元</small></div><table><thead><tr><th class="l">日期</th><th>買進</th><th>賣出</th><th>淨買賣</th></tr></thead><tbody>`+
+   x.hist.slice().reverse().map(d=>`<tr><td class="l">${d[0]}</td><td>${wan(d[1],1)}</td><td>${wan(d[2],1)}</td><td class="${fcls(d[1]-d[2])}">${wan(d[1]-d[2],1)}</td></tr>`).join('')+'</tbody></table><div class="note">未實現損益用當日收盤估算，未成交的權證沿用最近收盤。分點代表的是一家券商分公司裡的所有客戶，不一定是同一個人。</div>';
+  $('#bbody').innerHTML=h; $('#dd').classList.add('open','mb'); $('.sh-b').scrollTop=0; return true;
+}
+$('#tb').addEventListener('click',e=>{const tr=e.target.closest('tr[data-b]'); if(tr) openB(tr.dataset.b)});
+$('#br').addEventListener('click',e=>{const tr=e.target.closest('tr[data-b]'); if(tr&&BRD&&BRD.map[tr.dataset.b]) openB(tr.dataset.b)});
+$('#bf').addEventListener('click',e=>{const b=e.target.closest('button'); if(!b) return; bfilter=b.dataset.v; $('#bf').querySelectorAll('button').forEach(z=>z.classList.toggle('on',z===b)); renderB()});
+$('#tab').addEventListener('click',e=>{const b=e.target.closest('button'); if(!b) return; tab=b.dataset.v; $('#tab').querySelectorAll('button').forEach(z=>z.classList.toggle('on',z===b)); document.body.classList.toggle('mb',tab==='b'); if(tab==='b'&&$('#days').value!=='1'){$('#days').value='1'; aggregate()} history.replaceState(null,'',tab==='b'?'#branches':'#')});
+if(location.hash==='#branches') $('#tab button[data-v=b]').click();
 for(const t of ['#t1','#t2']) $(t).addEventListener('click',e=>{const tr=e.target.closest('tr[data-id]'); if(tr) openU(tr.dataset.id,t==='#t2'?'sell':'buy')});
 $('#shade').onclick=closeDD; $('#x').onclick=closeDD; document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDD()});
 $('#sort').addEventListener('click',e=>{const b=e.target.closest('button'); if(b){sortBy=b.dataset.v; drill()}});
