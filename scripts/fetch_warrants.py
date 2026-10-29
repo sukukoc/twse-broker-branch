@@ -29,10 +29,15 @@ def warrant_list(day):
     isw = lambda c: len(c) == 6 and c[0] == "0" and c[1] in "345678"
     rows = {r[0].strip(): r for r in tb["data"]}
     n2c = {re.sub(r"\(原名：.*?\)", "", r[1]).strip(): c for c, r in rows.items() if not isw(c)}
+    cp = os.path.join(os.path.dirname(os.path.abspath(__file__)), "market_cache", "tpex_names.json")
     try:
-        for r in _get("https://www.tpex.org.tw/openapi/v1/tpex_mainboard_daily_close_quotes"):
-            n2c.setdefault(r["CompanyName"].strip(), r["SecuritiesCompanyCode"].strip())
-    except Exception as e: print("TPEx name map failed:", e, flush=True)
+        tp = {r["CompanyName"].strip(): r["SecuritiesCompanyCode"].strip()
+              for r in _get("https://www.tpex.org.tw/openapi/v1/tpex_mainboard_daily_close_quotes")}
+        os.makedirs(os.path.dirname(cp), exist_ok=True); json.dump(tp, open(cp, "w", encoding="utf-8"), ensure_ascii=False)
+    except Exception as e:
+        print("TPEx name map failed, using cache:", e, flush=True)
+        tp = json.load(open(cp, encoding="utf-8")) if os.path.exists(cp) else {}
+    for k, v in tp.items(): n2c.setdefault(k, v)
     n2c.update(INDEX_CODES)
     basic = {a["權證代號"]: a for a in _get("https://openapi.twse.com.tw/v1/opendata/t187ap37_L")}
     info = {}
