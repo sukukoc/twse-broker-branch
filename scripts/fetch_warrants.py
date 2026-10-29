@@ -3,32 +3,51 @@
 Reuses fetch_one/parse from fetch_all.py. Resume cache: OUT/<date>/warrant_raw/<id>.csv
 Usage: python3 fetch_warrants.py [--date 20261029] [--workers 4] [--delay 0.5] [--ids 030001,...]
 """
-import argparse, csv, json, os, sys, time, threading, requests
+import argparse, csv, json, os, re, sys, time, threading, requests
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone, timedelta
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from fetch_all import fetch_one, parse, UA, TO
 
-TYPES = {"0999": "認購", "0999C": "認購", "0999X": "認購", "0999P": "認售", "0999B": "認售", "0999Y": "認售"}
-SUB = {"0999": "認購權證", "0999C": "牛證", "0999X": "可展延牛證", "0999P": "認售權證", "0999B": "熊證", "0999Y": "可展延熊證"}
+SUB = {"認購": "認購權證", "認售": "認售權證"}
+INDEX_CODES = {"臺股指數": "IX0001", "臺灣加權股價指數": "IX0001", "發行量加權股價指數": "IX0001", "電子類": "IX0027", "金融類": "IX0039"}
+
+def _get(url, **params):
+    for t in range(3):
+        try: return requests.get(url, params=params, headers={"User-Agent": UA}, timeout=(5, 90)).json()
+        except Exception as e: print("retry", url, e, flush=True); time.sleep(5)
+    raise RuntimeError(url)
 
 def warrant_list(day):
+    """All listed warrants (認購/認售/牛熊) that traded on `day`.
+    NOTE: MI_INDEX type=0999/0999P/... only returns a small subset of warrants, so use type=ALL
+    (every listed security) + TWSE OpenAPI t187ap37_L (warrant basic info: type + underlying name)."""
+    j = _get("https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX", date=day, type="ALL", response="json")
+    if j.get("stat") != "OK" or j.get("date") != day: raise RuntimeError(f"MI_INDEX ALL {day}: {j.get('stat')}")
+    tb = next(t for t in j["tables"] if t.get("data") and (t.get("fields") or [""])[0] == "證券代號")
+    f = tb["fields"]; ix = {k: f.index(k) for k in ("證券代號", "證券名稱", "成交股數", "成交金額", "收盤價")}
+    isw = lambda c: len(c) == 6 and c[0] == "0" and c[1] in "345678"
+    rows = {r[0].strip(): r for r in tb["data"]}
+    n2c = {re.sub(r"\(原名：.*?\)", "", r[1]).strip(): c for c, r in rows.items() if not isw(c)}
+    try:
+        for r in _get("https://www.tpex.org.tw/openapi/v1/tpex_mainboard_daily_close_quotes"):
+            n2c.setdefault(r["CompanyName"].strip(), r["SecuritiesCompanyCode"].strip())
+    except Exception as e: print("TPEx name map failed:", e, flush=True)
+    n2c.update(INDEX_CODES)
+    basic = {a["權證代號"]: a for a in _get("https://openapi.twse.com.tw/v1/opendata/t187ap37_L")}
     info = {}
-    for t, kind in TYPES.items():
-        j = requests.get("https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX",
-                         params=dict(date=day, type=t, response="json"), timeout=(5, 30)).json()
-        if j.get("stat") != "OK" or j.get("date") != day:
-            print("MI_INDEX", t, j.get("stat"), j.get("date")); continue
-        for tb in j["tables"]:
-            if not tb.get("data") or "證券代號" not in (tb.get("fields") or []): continue
-            f = tb["fields"]; ix = {k: f.index(k) for k in ("證券代號", "證券名稱", "成交股數", "成交金額", "收盤價", "標的代號", "標的名稱")}
-            for r in tb["data"]:
-                v = int(r[ix["成交股數"]].replace(",", "") or 0)
-                if v > 0:
-                    info[r[ix["證券代號"]].strip()] = dict(name=r[ix["證券名稱"]].strip(), type=kind, sub=SUB[t], vol=v,
-                        amt=int(r[ix["成交金額"]].replace(",", "") or 0), close=r[ix["收盤價"]],
-                        und_id=r[ix["標的代號"]].strip(), und_name=r[ix["標的名稱"]].strip())
-        time.sleep(1)
+    for c, r in rows.items():
+        if not isw(c): continue
+        v = int(r[ix["成交股數"]].replace(",", "") or 0)
+        if v <= 0: continue
+        name = r[ix["證券名稱"]].strip(); b = basic.get(c, {})
+        kind = b.get("權證類型") or ("認售" if any(k in name[-4:] for k in "售熊") else "認購")
+        und = re.sub(r"\(原名：.*?\)", "", b.get("標的證券/指數") or "").strip()
+        info[c] = dict(name=name, type=kind, sub="牛證" if "牛" in name[-4:] else "熊證" if "熊" in name[-4:] else SUB[kind],
+                       vol=v, amt=int(r[ix["成交金額"]].replace(",", "") or 0), close=r[ix["收盤價"]],
+                       und_id=n2c.get(und, "?" + und), und_name=und)
+    miss = sorted({i["und_name"] for i in info.values() if i["und_id"].startswith("?")})
+    print(f"warrant_list {day}: {len(info)} traded, total amt {sum(i['amt'] for i in info.values()):,}; unmapped underlyings: {miss[:20]}", flush=True)
     return info
 
 def main():
