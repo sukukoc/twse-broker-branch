@@ -2,108 +2,181 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>權證標的分點排行</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>權證標的 投資人買賣超</title>
 <style>
-:root{--bg:#f7f7f8;--card:#fff;--fg:#1d1d1f;--mut:#6b6b73;--line:#e3e3e8;--acc:#2563eb;--up:#d1242f;--dn:#1a7f37;--tag:#fff4d6;--tagfg:#8a5a00;--hl:#eef3ff}
-@media (prefers-color-scheme:dark){:root{--bg:#111214;--card:#1b1c1f;--fg:#e8e8ea;--mut:#9a9aa3;--line:#2c2d31;--acc:#6ea0ff;--up:#ff6b6b;--dn:#4cc38a;--tag:#3a2f12;--tagfg:#f3c969;--hl:#1f2636}}
+:root{--bg:#fff;--fg:#1a1a1a;--mut:#666;--grid:#d0d0d0;--head:#eef0f3;--zebra:#fafafa;--hov:#e6e9ee;--sel:#dfe7f5;--up:#d0021b;--dn:#0a8a3a;--red:#ff1a1a;--green:#23a05a;--ctl:#fff;--tag:#fff1c2;--tagfg:#7a5600;--sheet:#fff;--shade:rgba(0,0,0,.35)}
+@media (prefers-color-scheme:dark){:root{--bg:#121315;--fg:#e9e9ea;--mut:#9a9aa1;--grid:#33353a;--head:#1d1f23;--zebra:#17181b;--hov:#24272d;--sel:#24304a;--up:#ff5a5a;--dn:#3ccf7d;--red:#c81e1e;--green:#17804a;--ctl:#1b1c1f;--tag:#3b3010;--tagfg:#f0c860;--sheet:#1a1b1e;--shade:rgba(0,0,0,.6)}}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif}
-main{max-width:1100px;margin:0 auto;padding:16px}
-h1{font-size:1.4rem;margin:.2rem 0 .2rem}
-.sub{color:var(--mut);font-size:.88rem;margin-bottom:12px}
-.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:10px 0 14px}
-.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--card)}
-.seg button{border:0;background:none;color:var(--fg);padding:7px 14px;font:inherit;cursor:pointer}
-.seg button.on{background:var(--acc);color:#fff}
-select{font:inherit;padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--fg)}
-.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:4px 0;margin-bottom:16px;overflow:hidden}
-.scroll{overflow-x:auto}
+html,body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.35 -apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;-webkit-text-size-adjust:100%}
+main{max-width:860px;margin:0 auto;padding:8px 6px 24px}
+.ctl{display:grid;grid-template-columns:auto 52px 1fr 1fr;gap:6px;align-items:center;margin-bottom:6px}
+.ctl2{display:grid;grid-template-columns:auto 1fr;gap:6px;align-items:center;margin-bottom:8px}
+label{font-weight:600;white-space:nowrap}
+select,input{font:inherit;width:100%;min-width:0;padding:5px 6px;border:1px solid var(--grid);border-radius:3px;background:var(--ctl);color:var(--fg)}
+.box{border:1px solid var(--grid);margin-bottom:10px}
+.hd{color:#fff;text-align:center;font-weight:700;padding:7px 4px;font-size:15px}
+.hd.r{background:var(--red)}.hd.g{background:var(--green)}
+.hd small{font-weight:400;opacity:.9;font-size:12px}
+.sc table{font-size:13px}
+.sc{max-height:46vh;overflow:auto;-webkit-overflow-scrolling:touch}
 table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
-th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
-th{font-size:.8rem;color:var(--mut);font-weight:600;background:var(--card);position:sticky;top:0}
-td.l,th.l{text-align:left}
-tr:last-child td{border-bottom:0}
-tr.u{cursor:pointer}
-tr.u:hover,tr.u.sel{background:var(--hl)}
-.pos{color:var(--up)}.neg{color:var(--dn)}
-.tag{display:inline-block;font-size:.72rem;padding:1px 6px;border-radius:5px;background:var(--tag);color:var(--tagfg);margin-left:6px}
-.mut{color:var(--mut)}
-.btn{border:1px solid var(--acc);color:var(--acc);background:none;border-radius:6px;padding:3px 10px;font:inherit;font-size:.85rem;cursor:pointer}
-h2{font-size:1.1rem;margin:4px 0}
-.dhead{padding:12px 14px 6px}
-.dhead .bar{margin:8px 0 4px}
-.more{display:block;margin:8px auto 12px}
-details{padding:0 14px 10px}summary{cursor:pointer;color:var(--acc);padding:6px 0}
-.note{color:var(--mut);font-size:.82rem;line-height:1.6}
-@media (max-width:640px){main{padding:10px}th,td{padding:7px 6px;font-size:.85rem}.hide-s{display:none}}
+th,td{border:1px solid var(--grid);padding:5px 3px;text-align:right;white-space:nowrap}
+th{background:var(--head);font-weight:600;font-size:11.5px;line-height:1.2;position:sticky;top:0;z-index:1;text-align:center}
+td:nth-child(2),td:nth-child(3){text-align:left}
+td:nth-child(3){max-width:5.2em;overflow:hidden;text-overflow:ellipsis}
+tbody tr:nth-child(even){background:var(--zebra)}
+tbody tr{cursor:pointer}tbody tr:hover{background:var(--hov)}tbody tr.sel{background:var(--sel)}
+.up{color:var(--up)}.dn{color:var(--dn)}.mut{color:var(--mut)}
+.empty td{text-align:center;color:var(--mut);cursor:default}
+.note{color:var(--mut);font-size:12px;line-height:1.6;margin:8px 2px}
+.msg{font-size:12px;color:var(--mut);margin:-2px 2px 6px;min-height:1em}
+/* drill-down sheet */
+.shade{position:fixed;inset:0;background:var(--shade);display:none;z-index:10}
+.sheet{position:fixed;left:0;right:0;bottom:0;max-height:88vh;background:var(--sheet);border-radius:12px 12px 0 0;display:none;flex-direction:column;z-index:11;max-width:860px;margin:0 auto;box-shadow:0 -4px 20px rgba(0,0,0,.25)}
+.open .shade{display:block}.open .sheet{display:flex}
+.sh-h{padding:10px 12px 6px;border-bottom:1px solid var(--grid)}
+.sh-h h2{font-size:16px;margin:0 30px 4px 0}
+.x{position:absolute;right:8px;top:6px;border:0;background:none;color:var(--fg);font-size:24px;line-height:1;padding:4px 8px;cursor:pointer}
+.kv{display:grid;grid-template-columns:repeat(2,1fr);gap:2px 10px;font-size:12.5px}
+.kv b{font-weight:600}
+.seg{display:flex;margin-top:8px;border:1px solid var(--grid);border-radius:4px;overflow:hidden}
+.seg button{flex:1;border:0;border-right:1px solid var(--grid);background:var(--ctl);color:var(--fg);font:inherit;font-size:13px;padding:6px 0;cursor:pointer}
+.seg button:last-child{border-right:0}.seg button.on{background:#2f6fde;color:#fff}
+.sh-b{overflow:auto;-webkit-overflow-scrolling:touch;padding-bottom:env(safe-area-inset-bottom)}
+.sh-b td:nth-child(2){max-width:none}
+.tag{display:inline-block;font-size:11px;padding:0 4px;border-radius:3px;background:var(--tag);color:var(--tagfg);margin-left:4px;vertical-align:1px}
+details{padding:6px 10px 12px}summary{cursor:pointer;color:#2f6fde;padding:4px 0}
+#ws td:nth-child(2),#ws td:nth-child(3){text-align:left}
 </style>
 </head>
 <body>
 <main>
-<h1>權證標的分點排行</h1>
-<div class="sub">上市權證（證交所買賣日報表）依標的個股加總；認購含牛證，認售含熊證。金額單位：元，張＝千股。</div>
-<div class="bar">
-  <div class="seg" id="side"><button data-v="call" class="on">認購</button><button data-v="put">認售</button></div>
-  <label>日期 <select id="date"></select></label>
+<div class="ctl">
+  <label for="days">統計天數:</label>
+  <select id="days"><option>1</option><option>2</option><option>3</option><option>5</option><option>10</option><option>20</option></select>
+  <select id="date" aria-label="日期"></select>
+  <input id="q" list="ql" placeholder="搜尋股票" autocomplete="off" enterkeyhint="search">
+  <datalist id="ql"></datalist>
 </div>
-<div class="card"><div class="scroll"><table id="rank">
-<thead><tr><th>#</th><th class="l">標的</th><th>權證檔數</th><th>成交金額</th><th class="hide-s">成交張數</th><th class="hide-s" id="oppH">對側金額</th><th></th></tr></thead><tbody></tbody></table></div></div>
-<div class="card" id="detail" hidden>
-  <div class="dhead">
-    <h2 id="dTitle"></h2>
-    <div class="sub" id="dSub" style="margin:0"></div>
-    <div class="bar">排序
-      <div class="seg" id="sort"><button data-v="gross" class="on">成交</button><button data-v="buy">買進</button><button data-v="sell">賣出</button><button data-v="net">買超</button><button data-v="nsell">賣超</button></div>
-    </div>
-  </div>
-  <div class="scroll"><table id="br"><thead><tr><th>#</th><th class="l">分點</th><th>買進金額</th><th>賣出金額</th><th>買賣超</th><th class="hide-s">買進張</th><th class="hide-s">賣出張</th></tr></thead><tbody></tbody></table></div>
-  <button class="btn more" id="more" hidden></button>
-  <details><summary id="wsum">相關權證</summary><div class="scroll"><table id="ws"><thead><tr><th class="l">權證</th><th class="l">類型</th><th class="l">發行商</th><th>成交金額</th><th>張數</th><th>分點數</th></tr></thead><tbody></tbody></table></div></details>
+<div class="ctl2">
+  <label for="side">選擇標的</label>
+  <select id="side"><option value="call">認購權證買賣超表</option><option value="put">認售權證買賣超表</option></select>
 </div>
-<p class="note">「發行商」標記：該分點是此標的權證發行券商的總公司，且其買賣金額過半來自自家發行的權證，通常是造市，不代表一般投資人買盤。<br>
-資料來源：<a href="https://bsr.twse.com.tw/bshtm/">臺灣證券交易所 買賣日報表查詢系統</a>、證交所盤後行情。僅供個人研究參考，資料著作權屬臺灣證券交易所。</p>
+<div class="msg" id="msg"></div>
+<div class="box"><div class="hd r" id="h1"></div><div class="sc" id="s1"><table id="t1"></table></div></div>
+<div class="box"><div class="hd g" id="h2"></div><div class="sc" id="s2"><table id="t2"></table></div></div>
+<p class="note">
+<b>買賣超金額(萬)</b>：該標的所有認購（或認售）權證，排除「發行商自家分點」後的投資人 買進金額 − 賣出金額，單位萬元。發行商分點＝權證發行券商的總公司（自營／造市）代號，只在它自己發行的權證上視為發行商。造市商是投資人的對手方，所以投資人買超 ≈ 發行商賣超。點標的可看分點明細（含發行商），標「發行商」的分點有買賣自家發行的權證。認購含牛證，認售含熊證。<br>
+<b>漲跌天數</b>：標的股票連續上漲（＋）或下跌（−）的天數。<b>1日／5日漲幅</b>：以收盤漲跌計算的報酬率（%）。指數類標的用加權指數／類股指數。<br>
+<b>自營比%</b>：標的股票當日自營商買賣超股數（避險）÷ 成交股數 × 100（證交所三大法人 T86）；多日時為加總後的比率。<br>
+統計天數 &gt; 1 時，金額為最近 N 個有資料交易日的加總，漲跌數據以所選日期為準。<br>
+僅含上市（證交所）權證，不含上櫃（櫃買中心）權證。資料來源：<a href="https://bsr.twse.com.tw/bshtm/">證交所買賣日報表</a>、盤後行情、三大法人買賣超。資料著作權屬臺灣證券交易所，僅供個人研究參考，不構成投資建議。
+</p>
 </main>
+<div id="dd"><div class="shade" id="shade"></div><div class="sheet" role="dialog" aria-modal="true">
+  <button class="x" id="x" aria-label="關閉">×</button>
+  <div class="sh-h"><h2 id="dt"></h2><div class="kv" id="dk"></div>
+    <div class="seg" id="sort"><button data-v="net">買超</button><button data-v="nsell">賣超</button><button data-v="buy">買進</button><button data-v="sell">賣出</button><button data-v="gross">成交</button></div>
+  </div>
+  <div class="sh-b">
+    <table id="br"><thead><tr><th>#</th><th>分點</th><th>買進(萬)</th><th>賣出(萬)</th><th>買賣超(萬)</th></tr></thead><tbody></tbody></table>
+    <details><summary id="wsum"></summary><table id="ws"><thead><tr><th>代號</th><th>權證</th><th>發行</th><th>成交(萬)</th><th>張數</th></tr></thead><tbody></tbody></table></details>
+  </div>
+</div></div>
 <script>
-const $=s=>document.querySelector(s), fmt=n=>n.toLocaleString('zh-TW'), lots=n=>fmt(Math.round(n/1000));
-const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-let D=null, side='call', sel=null, sortBy='gross', limit=30;
-const cache={};
-function seg(id,cb){$(id).addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
-  $(id).querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));cb(b.dataset.v)})}
-async function load(date){
-  if(!cache[date]){const r=await fetch(`data/${date}.json`);if(!r.ok)throw new Error(r.status);cache[date]=await r.json()}
-  D=cache[date]; sel=null; render();
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const wan=(n,d=0)=>(n/1e4).toLocaleString('zh-TW',{minimumFractionDigits:d,maximumFractionDigits:d});
+const cls=n=>n>0?'up':n<0?'dn':'';
+const pct=n=>n==null?'':(Math.round(n*100)/100).toFixed(2);
+let DATES=[], cache={}, AGG=null, side='call', cur=null, sortBy='net';
+async function getDay(d){ if(!cache[d]){const r=await fetch(`data/${d}.json`); if(!r.ok) throw new Error(`${d} ${r.status}`); cache[d]=await r.json();} return cache[d]; }
+
+// aggregate N days ending at selected date
+async function aggregate(){
+  const end=$('#date').value, n=+$('#days').value;
+  const ds=DATES.filter(d=>d<=end).slice(0,n);
+  const days=await Promise.all(ds.map(getDay));
+  const last=days[0], U={}, brn={};
+  for(const D of days.slice().reverse()){
+    Object.assign(brn,D.brn);
+    for(const [id,u] of Object.entries(D.u)){
+      const a=U[id]??={id,n:u.n,idx:u.idx,px:null,hv:[0,0],hvn:0,call:null,put:null};
+      a.n=u.n; if(u.hv){a.hv[0]+=u.hv[0];a.hv[1]+=u.hv[1];a.hvn++}
+      for(const s of ['call','put']){ const x=u[s]; if(!x) continue;
+        const b=a[s]??={amt:0,sh:0,inv:0,nw:0,br:{},ws:{}};
+        b.amt+=x.amt;b.sh+=x.sh;b.inv+=x.inv;
+        for(const r of x.br){const t=b.br[r[0]]??=[r[0],0,0,0,0];t[1]+=r[1];t[2]+=r[2];t[3]+=r[3];t[4]+=r[4]}
+        for(const w of x.ws){const t=b.ws[w[0]]??=[w[0],w[1],w[2],w[3],0,0];t[4]+=w[4];t[5]+=w[5]}
+      }
+    }
+  }
+  for(const [id,u] of Object.entries(last.u)) if(U[id]) U[id].px=u.px;
+  for(const a of Object.values(U)) for(const s of ['call','put']) if(a[s]) a[s].nw=Object.keys(a[s].ws).length;
+  AGG={U,brn,ds,end};
+  $('#msg').textContent = ds.length<n ? `目前只有 ${ds.length} 個交易日的資料（${ds.at(-1)} ~ ${ds[0]}），以實際天數計算。` : (n>1?`統計 ${ds.at(-1)} ~ ${ds[0]}，共 ${n} 個交易日。`:'');
+  $('#ql').innerHTML=Object.values(U).sort((a,b)=>a.id.localeCompare(b.id)).map(u=>`<option value="${esc(u.id)} ${esc(u.n)}">`).join('');
+  render();
+}
+const HEAD='<thead><tr><th>排名</th><th>股票<br>代號</th><th>股票<br>名稱</th><th>買賣超<br>金額(萬)</th><th>漲跌<br>天數</th><th>1日<br>漲幅</th><th>5日<br>漲幅</th><th>自營<br>比%</th></tr></thead>';
+function row(u,i){
+  const x=u[side], p=u.px||[], hv=u.hvn?u.hv[0]/u.hv[1]*100:null;
+  return `<tr data-id="${esc(u.id)}"${cur===u.id?' class="sel"':''}><td>${i+1}</td><td>${u.idx?'<span class="mut">指數</span>':esc(u.id)}</td><td>${esc(u.n)}</td>`+
+    `<td class="${cls(x.inv)}">${wan(x.inv)}</td><td class="${cls(p[0])}">${p[0]??''}</td><td class="${cls(p[1])}">${pct(p[1])}</td><td class="${cls(p[2])}">${pct(p[2])}</td><td>${hv==null?'':((Math.round(hv*10)/10)||0).toFixed(1)}</td></tr>`;
 }
 function render(){
-  const L=D[side]; $('#oppH').textContent=side==='call'?'認售金額':'認購金額';
-  $('#rank tbody').innerHTML=L.map((u,i)=>`<tr class="u${sel===i?' sel':''}" data-i="${i}"><td>${u.rank}</td><td class="l"><b>${esc(u.uname)}</b> <span class="mut">${esc(u.uid)}</span></td><td>${u.nw}</td><td>${fmt(u.amt)}</td><td class="hide-s">${lots(u.shares)}</td><td class="hide-s">${fmt(u.opp_amt)}</td><td><button class="btn">看分點</button></td></tr>`).join('');
-  renderDetail();
+  const nm=side==='call'?'認購':'認售';
+  $('#h1').innerHTML=`投資人買超${nm}權證標的 <small>${AGG.end}</small>`; $('#h2').innerHTML=`投資人賣超${nm}權證標的 <small>${AGG.end}</small>`;
+  const L=Object.values(AGG.U).filter(u=>u[side]);
+  const buy=L.filter(u=>u[side].inv>0).sort((a,b)=>b[side].inv-a[side].inv);
+  const sell=L.filter(u=>u[side].inv<0).sort((a,b)=>a[side].inv-b[side].inv);
+  const none='<tbody><tr class="empty"><td colspan="8">沒有資料</td></tr></tbody>';
+  $('#t1').innerHTML=HEAD+(buy.length?'<tbody>'+buy.map(row).join('')+'</tbody>':none);
+  $('#t2').innerHTML=HEAD+(sell.length?'<tbody>'+sell.map(row).join('')+'</tbody>':none);
 }
-const KEY={gross:b=>Math.max(b[2],b[3]),buy:b=>b[2],sell:b=>b[3],net:b=>b[4],nsell:b=>-b[4]};
-function renderDetail(){
-  const box=$('#detail'); if(sel===null){box.hidden=true;return} box.hidden=false;
-  const u=D[side][sel], k=KEY[sortBy];
-  $('#dTitle').textContent=`${u.uname}（${u.uid}）${side==='call'?'認購':'認售'}權證 分點買賣`;
-  $('#dSub').textContent=`${D.date}｜${u.nw} 檔權證合計成交 ${fmt(u.amt)} 元、${lots(u.shares)} 張｜${u.br.length} 個分點`;
-  let br=u.br.slice().sort((a,b)=>k(b)-k(a)||a[0].localeCompare(b[0]));
-  if(sortBy==='net')br=br.filter(b=>b[4]>0); if(sortBy==='nsell')br=br.filter(b=>b[4]<0);
-  const shown=br.slice(0,limit);
-  $('#br tbody').innerHTML=shown.map((b,i)=>`<tr><td>${i+1}</td><td class="l">${esc(b[0])} ${esc(b[1])}${b[8]?'<span class="tag">發行商</span>':''}</td><td>${fmt(b[2])}</td><td>${fmt(b[3])}</td><td class="${b[4]>0?'pos':b[4]<0?'neg':''}">${b[4]>0?'+':''}${fmt(b[4])}</td><td class="hide-s">${lots(b[5])}</td><td class="hide-s">${lots(b[6])}</td></tr>`).join('')||'<tr><td colspan="7" class="l mut">沒有符合的分點</td></tr>';
-  const m=$('#more'); m.hidden=br.length<=limit; m.textContent=`顯示全部 ${br.length} 個分點`;
-  $('#wsum').textContent=`相關權證（${u.ws.length} 檔）`;
-  $('#ws tbody').innerHTML=u.ws.map(w=>`<tr><td class="l">${esc(w[0])} ${esc(w[1])}</td><td class="l">${esc(w[2])}</td><td class="l">${esc(w[3])}</td><td>${fmt(w[4])}</td><td>${lots(w[5])}</td><td>${w[6]}</td></tr>`).join('');
+function openU(id,from){
+  const u=AGG.U[id]; if(!u||!u[side]) return false;
+  cur=id; sortBy= from==='sell' ? 'nsell' : (u[side].inv<0?'nsell':'net'); render(); drill(); document.body.classList.add('open'); $('#dd').classList.add('open'); return true;
 }
-$('#rank tbody').addEventListener('click',e=>{const tr=e.target.closest('tr.u');if(!tr)return;const i=+tr.dataset.i;
-  sel=sel===i?null:i; limit=30; render(); if(sel!==null)$('#detail').scrollIntoView({behavior:'smooth',block:'start'})});
-seg('#side',v=>{side=v;sel=null;render()});
-seg('#sort',v=>{sortBy=v;limit=30;renderDetail()});
-$('#more').onclick=()=>{limit=1e9;renderDetail()};
-$('#date').onchange=e=>load(e.target.value).catch(err=>alert('讀取失敗：'+err));
+const KEY={net:b=>b[1]-b[2], nsell:b=>b[2]-b[1], buy:b=>b[1], sell:b=>b[2], gross:b=>b[1]+b[2]};
+function drill(){
+  const u=AGG.U[cur], x=u[side], nm=side==='call'?'認購':'認售';
+  $('#sort').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===sortBy));
+  $('#dt').textContent=`${u.n}${u.idx?'':'（'+u.id+'）'} ${nm}權證分點`;
+  const iss=Object.values(x.br).reduce((s,b)=>s+b[3]-b[4],0), p=u.px||[];
+  $('#dk').innerHTML=`<div>投資人買賣超 <b class="${cls(x.inv)}">${wan(x.inv)} 萬</b></div><div>發行商買賣超 <b class="${cls(iss)}">${wan(iss)} 萬</b></div>`+
+    `<div>權證成交 <b>${wan(x.amt)} 萬</b></div><div>權證 <b>${x.nw}</b> 檔・分點 <b>${Object.keys(x.br).length}</b></div>`+
+    (p.length?`<div>收盤 <b>${p[3]}</b>（<span class="${cls(p[1])}">${pct(p[1])}%</span>）</div>`:'')+`<div class="mut">${AGG.ds.length>1?AGG.ds.at(-1)+' ~ ':''}${AGG.end}</div>`;
+  const k=KEY[sortBy]; let br=Object.values(x.br);
+  if(sortBy==='net') br=br.filter(b=>b[1]>b[2]); if(sortBy==='nsell') br=br.filter(b=>b[1]<b[2]);
+  br.sort((a,b)=>k(b)-k(a)||a[0].localeCompare(b[0]));
+  $('#br tbody').innerHTML=br.map((b,i)=>{const n=b[1]-b[2], own=(b[3]+b[4])>0;
+    return `<tr><td>${i+1}</td><td>${esc(b[0])} ${esc(AGG.brn[b[0]]||'')}${own?'<span class="tag">發行商</span>':''}</td><td>${wan(b[1],1)}</td><td>${wan(b[2],1)}</td><td class="${cls(n)}">${wan(n,1)}</td></tr>`}).join('')||'<tr class="empty"><td colspan="5">沒有符合的分點</td></tr>';
+  const ws=Object.values(x.ws).sort((a,b)=>b[4]-a[4]);
+  $('#wsum').textContent=`相關權證（${ws.length} 檔）`;
+  $('#ws tbody').innerHTML=ws.map(w=>`<tr><td>${esc(w[0])}</td><td>${esc(w[1])}</td><td>${esc(w[3])}</td><td>${wan(w[4],1)}</td><td>${Math.round(w[5]/1000).toLocaleString()}</td></tr>`).join('');
+  $('.sh-b').scrollTop=0;
+}
+function closeDD(){ $('#dd').classList.remove('open'); cur=null; render(); }
+for(const t of ['#t1','#t2']) $(t).addEventListener('click',e=>{const tr=e.target.closest('tr[data-id]'); if(tr) openU(tr.dataset.id,t==='#t2'?'sell':'buy')});
+$('#shade').onclick=closeDD; $('#x').onclick=closeDD; document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDD()});
+$('#sort').addEventListener('click',e=>{const b=e.target.closest('button'); if(b){sortBy=b.dataset.v; drill()}});
+$('#side').onchange=e=>{side=e.target.value; cur=null; render()};
+$('#days').onchange=$('#date').onchange=()=>aggregate().catch(err=>$('#msg').textContent='讀取失敗：'+err);
+function search(){
+  const q=$('#q').value.trim(); if(!q) return; const key=q.split(/\s+/)[0];
+  const us=Object.values(AGG.U); const u=AGG.U[key]||us.find(u=>u.n===q)||us.find(u=>u.n.includes(q)||u.id.startsWith(q));
+  if(!u){$('#msg').textContent=`找不到「${q}」的權證資料`;return}
+  if(!u[side]){const o=side==='call'?'put':'call'; if(u[o]){side=o;$('#side').value=o}else return}
+  render(); const tr=document.querySelector(`tr[data-id="${CSS.escape(u.id)}"]`); if(tr) tr.scrollIntoView({block:'center'});
+  $('#msg').textContent=''; openU(u.id); $('#q').blur();
+}
+$('#q').addEventListener('change',search); $('#q').addEventListener('keydown',e=>{if(e.key==='Enter')search()});
 (async()=>{
-  try{const idx=await (await fetch('data/index.json',{cache:'no-cache'})).json(); const ds=idx.dates.slice().sort().reverse();
-    $('#date').innerHTML=ds.map(d=>`<option>${d}</option>`).join(''); await load(ds[0]);}
-  catch(e){$('#rank tbody').innerHTML=`<tr><td colspan="7" class="l">資料讀取失敗：${esc(e)}</td></tr>`}
+  try{ const idx=await (await fetch('data/index.json',{cache:'no-cache'})).json(); DATES=idx.dates.slice().sort().reverse();
+    $('#date').innerHTML=DATES.map(d=>`<option value="${d}">${d.replaceAll('-','/')}</option>`).join(''); await aggregate(); }
+  catch(e){ $('#msg').textContent='資料讀取失敗：'+e }
 })();
 </script>
 </body>

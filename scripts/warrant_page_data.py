@@ -16,7 +16,7 @@ BASE = os.path.dirname(os.path.abspath(__file__))
 ISSUER_HQ = {"群益": "9100", "凱基": "9200", "永豐": "9A00", "台新": "9B00", "元大": "9800", "富邦": "9600",
              "國票": "7790", "國泰": "8880", "統一": "5850", "元富": "5920", "兆豐": "7000", "第一": "5380",
              "華南": "9300", "康和": "8450", "玉山": "8840", "新光": "8560", "宏遠": "1260", "中信": "6160"}
-ISSUER_RE = re.compile("(" + "|".join(ISSUER_HQ) + ")")
+ISSUER_RE = re.compile("(" + "|".join(ISSUER_HQ) + ")(?=[0-9][0-9A-Z][購售牛熊])")  # issuer sits right before the year code, e.g. 國泰金台新5C售03
 SIDE = {"認購": "call", "認售": "put"}
 
 def clean(s): return re.sub(r"\s+", "", s or "")

@@ -10,3 +10,4 @@ scripts/*.json
 /data/
 .env
 *.pat
+scripts/market_cache/
