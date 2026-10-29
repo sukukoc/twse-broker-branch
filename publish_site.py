@@ -55,6 +55,7 @@ def main():
     auth = base64.b64encode(f"x-access-token:{token()}".encode()).decode()
     env = dict(os.environ, GIT_CONFIG_COUNT="1", GIT_CONFIG_KEY_0="http.https://github.com/.extraheader",
                GIT_CONFIG_VALUE_0=f"AUTHORIZATION: basic {auth}", GIT_TERMINAL_PROMPT="0")
+    git("pull", "-q", "--rebase", "origin", "main", env=env)  # pick up any newer commits (e.g. page edits) before pushing
     git("push", "-q", "origin", "HEAD:main", env=env)
     print("已 push，GitHub Pages 約 1 分鐘後更新")
 
