@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+*.log
+*.zip
+*.tmp
+# 抓下來的原始資料與輸出（太大，不進 repo；頁面資料在 docs/data）
+scripts/20[0-9][0-9]-*/
+scripts/*.csv
+scripts/*.json
+/data/
+.env
+*.pat

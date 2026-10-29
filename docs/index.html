@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>權證標的分點排行</title>
+<style>
+:root{--bg:#f7f7f8;--card:#fff;--fg:#1d1d1f;--mut:#6b6b73;--line:#e3e3e8;--acc:#2563eb;--up:#d1242f;--dn:#1a7f37;--tag:#fff4d6;--tagfg:#8a5a00;--hl:#eef3ff}
+@media (prefers-color-scheme:dark){:root{--bg:#111214;--card:#1b1c1f;--fg:#e8e8ea;--mut:#9a9aa3;--line:#2c2d31;--acc:#6ea0ff;--up:#ff6b6b;--dn:#4cc38a;--tag:#3a2f12;--tagfg:#f3c969;--hl:#1f2636}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif}
+main{max-width:1100px;margin:0 auto;padding:16px}
+h1{font-size:1.4rem;margin:.2rem 0 .2rem}
+.sub{color:var(--mut);font-size:.88rem;margin-bottom:12px}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:10px 0 14px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--card)}
+.seg button{border:0;background:none;color:var(--fg);padding:7px 14px;font:inherit;cursor:pointer}
+.seg button.on{background:var(--acc);color:#fff}
+select{font:inherit;padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--fg)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:4px 0;margin-bottom:16px;overflow:hidden}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th{font-size:.8rem;color:var(--mut);font-weight:600;background:var(--card);position:sticky;top:0}
+td.l,th.l{text-align:left}
+tr:last-child td{border-bottom:0}
+tr.u{cursor:pointer}
+tr.u:hover,tr.u.sel{background:var(--hl)}
+.pos{color:var(--up)}.neg{color:var(--dn)}
+.tag{display:inline-block;font-size:.72rem;padding:1px 6px;border-radius:5px;background:var(--tag);color:var(--tagfg);margin-left:6px}
+.mut{color:var(--mut)}
+.btn{border:1px solid var(--acc);color:var(--acc);background:none;border-radius:6px;padding:3px 10px;font:inherit;font-size:.85rem;cursor:pointer}
+h2{font-size:1.1rem;margin:4px 0}
+.dhead{padding:12px 14px 6px}
+.dhead .bar{margin:8px 0 4px}
+.more{display:block;margin:8px auto 12px}
+details{padding:0 14px 10px}summary{cursor:pointer;color:var(--acc);padding:6px 0}
+.note{color:var(--mut);font-size:.82rem;line-height:1.6}
+@media (max-width:640px){main{padding:10px}th,td{padding:7px 6px;font-size:.85rem}.hide-s{display:none}}
+</style>
+</head>
+<body>
+<main>
+<h1>權證標的分點排行</h1>
+<div class="sub">上市權證（證交所買賣日報表）依標的個股加總；認購含牛證，認售含熊證。金額單位：元，張＝千股。</div>
+<div class="bar">
+  <div class="seg" id="side"><button data-v="call" class="on">認購</button><button data-v="put">認售</button></div>
+  <label>日期 <select id="date"></select></label>
+</div>
+<div class="card"><div class="scroll"><table id="rank">
+<thead><tr><th>#</th><th class="l">標的</th><th>權證檔數</th><th>成交金額</th><th class="hide-s">成交張數</th><th class="hide-s" id="oppH">對側金額</th><th></th></tr></thead><tbody></tbody></table></div></div>
+<div class="card" id="detail" hidden>
+  <div class="dhead">
+    <h2 id="dTitle"></h2>
+    <div class="sub" id="dSub" style="margin:0"></div>
+    <div class="bar">排序
+      <div class="seg" id="sort"><button data-v="gross" class="on">成交</button><button data-v="buy">買進</button><button data-v="sell">賣出</button><button data-v="net">買超</button><button data-v="nsell">賣超</button></div>
+    </div>
+  </div>
+  <div class="scroll"><table id="br"><thead><tr><th>#</th><th class="l">分點</th><th>買進金額</th><th>賣出金額</th><th>買賣超</th><th class="hide-s">買進張</th><th class="hide-s">賣出張</th></tr></thead><tbody></tbody></table></div>
+  <button class="btn more" id="more" hidden></button>
+  <details><summary id="wsum">相關權證</summary><div class="scroll"><table id="ws"><thead><tr><th class="l">權證</th><th class="l">類型</th><th class="l">發行商</th><th>成交金額</th><th>張數</th><th>分點數</th></tr></thead><tbody></tbody></table></div></details>
+</div>
+<p class="note">「發行商」標記：該分點是此標的權證發行券商的總公司，且其買賣金額過半來自自家發行的權證，通常是造市，不代表一般投資人買盤。<br>
+資料來源：<a href="https://bsr.twse.com.tw/bshtm/">臺灣證券交易所 買賣日報表查詢系統</a>、證交所盤後行情。僅供個人研究參考，資料著作權屬臺灣證券交易所。</p>
+</main>
+<script>
+const $=s=>document.querySelector(s), fmt=n=>n.toLocaleString('zh-TW'), lots=n=>fmt(Math.round(n/1000));
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let D=null, side='call', sel=null, sortBy='gross', limit=30;
+const cache={};
+function seg(id,cb){$(id).addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+  $(id).querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));cb(b.dataset.v)})}
+async function load(date){
+  if(!cache[date]){const r=await fetch(`data/${date}.json`);if(!r.ok)throw new Error(r.status);cache[date]=await r.json()}
+  D=cache[date]; sel=null; render();
+}
+function render(){
+  const L=D[side]; $('#oppH').textContent=side==='call'?'認售金額':'認購金額';
+  $('#rank tbody').innerHTML=L.map((u,i)=>`<tr class="u${sel===i?' sel':''}" data-i="${i}"><td>${u.rank}</td><td class="l"><b>${esc(u.uname)}</b> <span class="mut">${esc(u.uid)}</span></td><td>${u.nw}</td><td>${fmt(u.amt)}</td><td class="hide-s">${lots(u.shares)}</td><td class="hide-s">${fmt(u.opp_amt)}</td><td><button class="btn">看分點</button></td></tr>`).join('');
+  renderDetail();
+}
+const KEY={gross:b=>Math.max(b[2],b[3]),buy:b=>b[2],sell:b=>b[3],net:b=>b[4],nsell:b=>-b[4]};
+function renderDetail(){
+  const box=$('#detail'); if(sel===null){box.hidden=true;return} box.hidden=false;
+  const u=D[side][sel], k=KEY[sortBy];
+  $('#dTitle').textContent=`${u.uname}（${u.uid}）${side==='call'?'認購':'認售'}權證 分點買賣`;
+  $('#dSub').textContent=`${D.date}｜${u.nw} 檔權證合計成交 ${fmt(u.amt)} 元、${lots(u.shares)} 張｜${u.br.length} 個分點`;
+  let br=u.br.slice().sort((a,b)=>k(b)-k(a)||a[0].localeCompare(b[0]));
+  if(sortBy==='net')br=br.filter(b=>b[4]>0); if(sortBy==='nsell')br=br.filter(b=>b[4]<0);
+  const shown=br.slice(0,limit);
+  $('#br tbody').innerHTML=shown.map((b,i)=>`<tr><td>${i+1}</td><td class="l">${esc(b[0])} ${esc(b[1])}${b[8]?'<span class="tag">發行商</span>':''}</td><td>${fmt(b[2])}</td><td>${fmt(b[3])}</td><td class="${b[4]>0?'pos':b[4]<0?'neg':''}">${b[4]>0?'+':''}${fmt(b[4])}</td><td class="hide-s">${lots(b[5])}</td><td class="hide-s">${lots(b[6])}</td></tr>`).join('')||'<tr><td colspan="7" class="l mut">沒有符合的分點</td></tr>';
+  const m=$('#more'); m.hidden=br.length<=limit; m.textContent=`顯示全部 ${br.length} 個分點`;
+  $('#wsum').textContent=`相關權證（${u.ws.length} 檔）`;
+  $('#ws tbody').innerHTML=u.ws.map(w=>`<tr><td class="l">${esc(w[0])} ${esc(w[1])}</td><td class="l">${esc(w[2])}</td><td class="l">${esc(w[3])}</td><td>${fmt(w[4])}</td><td>${lots(w[5])}</td><td>${w[6]}</td></tr>`).join('');
+}
+$('#rank tbody').addEventListener('click',e=>{const tr=e.target.closest('tr.u');if(!tr)return;const i=+tr.dataset.i;
+  sel=sel===i?null:i; limit=30; render(); if(sel!==null)$('#detail').scrollIntoView({behavior:'smooth',block:'start'})});
+seg('#side',v=>{side=v;sel=null;render()});
+seg('#sort',v=>{sortBy=v;limit=30;renderDetail()});
+$('#more').onclick=()=>{limit=1e9;renderDetail()};
+$('#date').onchange=e=>load(e.target.value).catch(err=>alert('讀取失敗：'+err));
+(async()=>{
+  try{const idx=await (await fetch('data/index.json',{cache:'no-cache'})).json(); const ds=idx.dates.slice().sort().reverse();
+    $('#date').innerHTML=ds.map(d=>`<option>${d}</option>`).join(''); await load(ds[0]);}
+  catch(e){$('#rank tbody').innerHTML=`<tr><td colspan="7" class="l">資料讀取失敗：${esc(e)}</td></tr>`}
+})();
+</script>
+</body>
+</html>
