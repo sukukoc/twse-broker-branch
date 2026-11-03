@@ -22,6 +22,7 @@ FAMOUS = {"凱基松山": "財訊:隔日沖", "土城永寧": "財訊:隔日沖"
           "凱基台北": "財訊:隔日沖", "國泰敦北": "財訊:短線", "康和永和": "財訊:短線", "凱基虎尾": "財訊:虎尾幫",
           "富邦虎尾": "財訊:虎尾幫", "富邦嘉義": "財訊:隔日沖", "凱基三重": "CMoney:權證隔日沖", "上新莊": "CMoney:權證大戶"}
 HORIZONS = (1, 3, 5, 10)
+STAR_MIN, STAR_LOW, STAR_MAX, STAR_FLOOR = 45, 35, 20, 10
 ENTRY_MIN = 500_000      # 一筆「進場」= 某分點當天在某標的某方向的權證淨買 ≥ 50 萬
 
 SCHEMA = """
@@ -115,6 +116,14 @@ def build(D, src, top=150):
     for b, s, ba, sa in c.execute("SELECT broker,sid,buy_amt,sell_amt FROM strade WHERE date=?", (D,)): ST[(b, s)] = ba - sa
     has_stock = bool(c.execute("SELECT has_stock FROM days WHERE date=?", (D,)).fetchone()[0])
     recent = days[-5:]
+    # 各標的×方向：當天所有非發行商分點淨買（只加淨買為正者）合計，用來算「佔該標的投資人淨買比例」
+    UB = collections.defaultdict(float)
+    for b, rows in T.items():
+        z = collections.defaultdict(float)
+        for d, w, bs, ss, ba, sa in rows:
+            if d == D: i = WI.get(w, {}); z[(i.get("uid", "?"), i.get("side", "call"))] += ba - sa
+        for k, v in z.items():
+            if v > 0: UB[k] += v
     out = []
     for b, rows in T.items():
         today = [r for r in rows if r[0] == D]
@@ -150,20 +159,37 @@ def build(D, src, top=150):
                 if d in recent and (WI.get(w, {}).get("uid"), WI.get(w, {}).get("side")) == k0: dn[d] += ba - sa
             rep = sum(1 for v in dn.values() if v > 0)
         fam = next((v for k, v in FAMOUS.items() if k in names.get(b, "")), "")
+        # 廣度：當天交易的權證檔數、第一大標的用了幾檔權證 → 太分散像造市／程式單
+        nwt = len({r[1] for r in today}); nw0 = len(pos[0][1]["w"]) if pos else 0
+        share0 = (pos[0][1]["buy"] - pos[0][1]["sell"]) / UB[pos[0][0]] if pos and UB[pos[0][0]] > 0 else 0
+        mm = nwt >= 300 or nw0 >= 30
+        # 出現天數：第一大標的同方向淨買的資料日數（全部歷史）
+        seen = 0
+        if pos:
+            dn2 = collections.Counter()
+            for d, w, bs, ss, ba, sa in rows:
+                if (WI.get(w, {}).get("uid"), WI.get(w, {}).get("side")) == pos[0][0]: dn2[d] += ba - sa
+            seen = sum(1 for v in dn2.values() if v > 0)
         tr = track(rows, WI, WC, SC, D, alld)
-        s1 = 30 * min(1, math.log10(1 + max(net, 0) / 5e5) / 2)
-        s2 = 15 * conc if net >= 1e6 else 0
-        s3 = 15 * aggr if net >= 1e6 else 0
-        s4 = (15 if cross and pos and cross[0][0] == pos[0][0][0] else 8 if cross else 0) if net >= 1e6 else 0
+        # v2 計分（2026-11-03 調整）：偏重「集中下注」，壓低廣撒網的造市／程式單
+        n0 = (pos[0][1]["buy"] - pos[0][1]["sell"]) if pos else 0
+        s1 = 25 * min(1, math.log10(1 + max(net, 0) / 5e5) / 2)
+        s2 = (10 * conc + 15 * min(1, share0 / 0.5)) if n0 >= 1e6 else 0          # 集中 + 佔標的淨買比例
+        s3 = 10 * aggr if net >= 1e6 else 0
+        s4 = (15 if cross and pos and cross[0][0] == pos[0][0][0] else 6 if cross else 0) if net >= 1e6 else 0
         s5 = 10 * min(1, max(0, rep - 1) / 3)
-        s6 = 10 if fam else 0
+        s6 = 5 if fam else 0
         s7 = 0
         w1 = tr["win"].get("1")
         if w1 and w1[1] >= 5: s7 = 15 * (w1[0] / w1[1] - 0.5) * 2
-        score = round(s1 + s2 + s3 + s4 + s5 + s6 + s7, 1)
+        s8 = -(25 if mm else 12 if nw0 >= 15 else 5 if nw0 >= 8 else 0)            # 廣度扣分
+        score = round(max(0, s1 + s2 + s3 + s4 + s5 + s6 + s7 + s8), 1)
         why = []
         if net >= 1e7: why.append(f"大額淨買 {net/1e8:.2f} 億" if net >= 1e8 else f"大額淨買 {net/1e4:,.0f} 萬")
-        if s2 >= 10: why.append(f"集中 {WI.get(next(iter(pos[0][1]['w'])),{}).get('uname','')}({'購' if pos[0][0][1]=='call' else '售'}) {conc*100:.0f}%")
+        if mm: why.append(f"疑似造市/程式單：{nwt} 檔權證、第一大標的 {nw0} 檔")
+        if n0 >= 1e6 and share0 >= 0.3: why.append(f"佔該標的投資人淨買 {share0*100:.0f}%")
+        if pos and nw0 <= 3 and n0 >= 1e6: why.append(f"只用 {nw0} 檔權證集中下注")
+        if s2 >= 10 and conc >= 0.5: why.append(f"集中 {WI.get(next(iter(pos[0][1]['w'])),{}).get('uname','')}({'購' if pos[0][0][1]=='call' else '售'}) {conc*100:.0f}%")
         if s3 >= 7: why.append("偏好價外/短天期")
         if s4 >= 15: why.append("現股同步買超")
         elif s4: why.append("現股同步")
@@ -174,15 +200,22 @@ def build(D, src, top=150):
         for d, w, bs, ss, ba, sa in rows: hist[d][0] += ba; hist[d][1] += sa
         out.append(dict(id=b, n=names.get(b, b), score=score, net=round(net), buy=round(buy), sell=round(sell), conc=round(conc, 3),
             aggr=round(aggr, 2), nund=len({k[0] for k, v in hold}), fam=fam, why=why, cross=cross, rep=rep,
-            parts=[round(x, 1) for x in (s1, s2, s3, s4, s5, s6, s7)],
+            parts=[round(x, 1) for x in (s1, s2, s3, s4, s5, s6, s7, s8)], mm=mm, nwt=nwt, nw0=nw0,
+            share0=round(share0, 3), seen=seen,
             hold=[dict(uid=k[0], un=WI.get(next(iter(v["w"])), {}).get("uname", k[0]), side=k[1], net=round(v["buy"] - v["sell"]),
                        buy=round(v["buy"]), sell=round(v["sell"]), nw=len(v["w"]),
+                       sh=round((v["buy"] - v["sell"]) / UB[k], 3) if v["buy"] > v["sell"] and UB[k] > 0 else None,
                        sn=round(ST[(b, k[0])]) if (b, k[0]) in ST else None,
                        w=[[w, WI.get(w, {}).get("name", w), round(x), WC[w].get(D)] for w, x in v["w"].most_common()[:8]])
                   for k, v in hold[:12]],
             hist=[[d, round(v[0]), round(v[1])] for d, v in sorted(hist.items())], tr=tr))
     out.sort(key=lambda x: -x["score"])
-    for i, x in enumerate(out): x["star"] = x["score"] >= 45 and x["net"] >= 3e6
+    # ⭐：非造市、淨買 ≥ 100 萬、分數 ≥ STAR_MIN；最多 STAR_MAX 家，不足 STAR_FLOOR 家時放寬到分數 ≥ STAR_LOW
+    ok = [x for x in out if not x["mm"] and x["net"] >= 1e6]
+    st = [x for x in ok if x["score"] >= STAR_MIN][:STAR_MAX]
+    if len(st) < STAR_FLOOR: st = [x for x in ok if x["score"] >= STAR_LOW][:STAR_FLOOR]
+    ids = {x["id"] for x in st}
+    for x in out: x["star"] = x["id"] in ids
     keep = [x for x in out[:top]] + [x for x in out[top:] if x["star"]]
     c.close()
     return dict(date=D, ndays=len(days), days=days, has_stock=has_stock, horizons=HORIZONS, n_all=len(out),

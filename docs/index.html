@@ -81,6 +81,15 @@ body.mb .u-only{display:none!important}body:not(.mb) .b-only{display:none!import
 td small.ws{display:block;color:var(--mut);font-size:11px;white-space:normal;max-width:15em;text-align:left}
 .sc-b td.l b{max-width:6.5em}
 .sbar{display:inline-block;width:40px;height:6px;border-radius:3px;background:var(--chip);vertical-align:middle;margin-left:4px;overflow:hidden}.sbar i{display:block;height:100%;background:var(--acc)}
+.nt{padding:0 12px 12px;display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px}
+.nc{border:1px solid var(--line);border-radius:12px;padding:9px 10px;cursor:pointer;background:var(--card)}
+.nc:hover{background:var(--chip)}
+.nc .t{display:flex;align-items:baseline;gap:6px}.nc .t b{font-size:14px}.nc .t small{color:var(--mut);font-size:11px}
+.nc .t .s{margin-left:auto;font-weight:700;color:var(--amber)}
+.nc ul{margin:6px 0 0;padding:0;list-style:none;font-size:12px}.nc li{display:flex;gap:6px;padding:1px 0}.nc li .m{margin-left:auto;color:var(--mut);white-space:nowrap}
+.nc .f{font-size:11px;color:var(--mut);margin-top:5px}
+.nc .why{margin-top:6px}.nc .why span{font-size:11px;padding:1px 6px}
+#nsec .sh{border-left-color:var(--acc)}
 footer{max-width:860px;margin:0 auto;padding:0 10px 30px}
 </style>
 </head>
@@ -99,6 +108,8 @@ footer{max-width:860px;margin:0 auto;padding:0 10px 30px}
   <datalist id="ql"></datalist>
   <div class="msg" id="msg"></div>
 </div>
+<section class="sec" id="nsec"><div class="sh"><h2>⭐ 值得注意的分點</h2><span class="chip" id="nn"></span><span class="meta" id="nd"></span></div>
+<div class="note" id="nnote" style="padding:0 14px 8px"></div><div class="nt" id="nt"></div></section>
 <section class="sec buy u-only"><div class="sh"><h2 id="h1"></h2><span class="chip" id="n1"></span><span class="meta" id="d1"></span></div><div class="sc"><table id="t1"></table></div></section>
 <section class="sec sell u-only"><div class="sh"><h2 id="h2"></h2><span class="chip" id="n2"></span><span class="meta" id="d2"></span></div><div class="sc"><table id="t2"></table></div></section>
 <section class="sec b-only"><div class="sh"><h2>分點大戶雷達</h2><span class="chip" id="bn"></span><span class="meta" id="bd"></span></div>
@@ -219,8 +230,23 @@ async function loadBR(){
   const d=AGG.end; if(!(d in BR)){ try{const r=await fetch(`data/branches/${d}.json`); BR[d]=r.ok?await r.json():null}catch(e){BR[d]=null} }
   BRD=BR[d]; if(BRD){ BRD.map=Object.fromEntries(BRD.br.map(x=>[x.id,x]));
     if(!BRD.n_star&&bfilter==='star'){bfilter='all'; $('#bf').querySelectorAll('button').forEach(z=>z.classList.toggle('on',z.dataset.v==='all'))} }
-  renderB();
+  renderB(); renderN();
 }
+function renderN(){
+  const box=$('#nt'); if(!BRD){box.innerHTML='<div class="note">這一天還沒有分點大戶資料</div>';$('#nn').textContent='';$('#nd').textContent='';$('#nnote').textContent='';return}
+  const L=BRD.br.filter(x=>x.star).sort((a,b)=>b.score-a.score), mm=BRD.br.filter(x=>x.mm);
+  $('#nn').textContent=`${L.length} 家`; $('#nd').textContent=`${BRD.date}・歷史 ${BRD.ndays} 天`;
+  $('#nnote').innerHTML=`挑選：非發行商分點、權證淨買 ≥ 100 萬、集中在少數標的與少數權證、佔該標的投資人淨買比例高、現股同向者加分。`+
+    (mm.length?` 已排除疑似造市／程式單（單一標的用 ≥30 檔或全日 ≥300 檔權證）：${mm.slice(0,5).map(x=>esc(x.n)).join('、')}。`:'')+
+    ((c=>c&&c.n<c.total?` <b>本日為部分資料：${c.n.toLocaleString()}/${c.total.toLocaleString()} 檔、成交金額 ${c.pct}%</b>。`:'')((cache[BRD.date]||{}).cov))+' 點卡片看明細。研究參考、非投資建議。';
+  box.innerHTML=L.length?L.map(x=>{
+    const hs=x.hold.filter(u=>u.net>0).slice(0,3);
+    return `<div class="nc" data-b="${esc(x.id)}"><div class="t"><b>${esc(x.n)}</b><small>${esc(x.id)}${x.fam?' 📰':''}</small><span class="s">${Math.round(x.score)} 分</span></div><ul>`+
+     hs.map(u=>`<li><span>${esc(u.un)} <span class="tag">${SIDEN[u.side]}</span></span><span class="fb">+${wan(u.net)} 萬</span><span class="m">${u.sh!=null?'佔 '+Math.round(u.sh*100)+'%・':''}${u.nw} 檔${u.sn!=null?'・現股 '+sg(u.sn)+'萬':''}</span></li>`).join('')+
+     `</ul><div class="f">權證淨買 ${wan(x.net)} 萬・${x.nund} 個標的・第一大標的同向出現 ${x.seen??'–'}/${BRD.ndays} 天・隔日勝率 ${(x.tr.win['1']&&x.tr.win['1'][1])?x.tr.win['1'][0]+'/'+x.tr.win['1'][1]:'累積中'}</div>`+
+     `<div class="why">${x.why.slice(0,4).map(w=>`<span>${esc(w)}</span>`).join('')}</div></div>`}).join(''):'<div class="note">今天沒有符合條件的分點</div>';
+}
+$('#nt').addEventListener('click',e=>{const c=e.target.closest('.nc[data-b]'); if(c) openB(c.dataset.b)});
 const SIDEN={call:'購',put:'售'};
 function trCell(x){const w=x.tr.win['1']; return w&&w[1]?`<span class="${w[0]/w[1]>=.5?'up':'dn'}">${w[0]}/${w[1]}</span>`:'<span class="mut">累積中</span>'}
 function renderB(){
