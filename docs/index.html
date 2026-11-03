@@ -165,6 +165,8 @@ async function aggregate(){
   for(const a of Object.values(U)) for(const s of ['call','put']) if(a[s]) a[s].nw=Object.keys(a[s].ws).length;
   AGG={U,brn,ds,end};
   $('#msg').textContent = ds.length<n ? `目前只有 ${ds.length} 個交易日的資料（${ds.at(-1)} ~ ${ds[0]}），以實際天數計算。` : (n>1?`統計 ${ds.at(-1)} ~ ${ds[0]}，共 ${n} 個交易日。`:'');
+  { const pc=ds.map((d,i)=>[d,days[i].cov]).filter(([d,c])=>c&&c.n<c.total);
+    if(pc.length) $('#msg').textContent += (pc.length?' ':'') + pc.map(([d,c])=>`${d} 為部分資料：資料涵蓋 ${c.n.toLocaleString()}/${c.total.toLocaleString()} 檔、成交金額 ${c.pct}%。`).join(' '); }
   $('#ql').innerHTML=Object.values(U).sort((a,b)=>a.id.localeCompare(b.id)).map(u=>`<option value="${esc(u.id)} ${esc(u.n)}">`).join('');
   render(); loadBR();
 }

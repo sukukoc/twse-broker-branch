@@ -155,6 +155,13 @@ def build(D, src, cache=None):
         s["br"] = sorted(([bid, *v] for bid, v in br.items()), key=lambda x: -(x[1] + x[2]))
         s["inv"] = sum(b[1] - b[3] - (b[2] - b[4]) for b in s["br"])
         s["ws"].sort(key=lambda x: -x[4])
+    # coverage: how much of the day's traded warrants (and money) the branch data covers
+    rd = os.path.join(src, D, "warrant_raw")
+    if info and os.path.isdir(rd):
+        got = [w for w in info if os.path.exists(os.path.join(rd, w + ".csv")) or os.path.exists(os.path.join(rd, w + ".csv.empty"))]
+        tot = sum(int(v.get("amt", 0) or 0) for v in info.values()) or 1
+        out["cov"] = {"n": len(got), "total": len(info),
+                      "pct": round(100 * sum(int(info[w].get("amt", 0) or 0) for w in got) / tot, 1)}
     return out
 
 def main():
