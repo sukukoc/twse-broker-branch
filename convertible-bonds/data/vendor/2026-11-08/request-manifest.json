@@ -1,0 +1,172 @@
+[
+  {
+    "name": "cb-master",
+    "source_url": "https://www.tpex.org.tw/openapi/v1/bond_ISSBD5_data",
+    "fetched_at": "2026-11-08T09:03:36.190427+08:00",
+    "status": 200,
+    "content_type": "application/json",
+    "http_date": "Sun, 08 Nov 2026 01:03:38 GMT",
+    "last_modified": "Sat, 07 Nov 2026 15:30:10 GMT",
+    "final_url": "https://www.tpex.org.tw/openapi/v1/bond_ISSBD5_data",
+    "row_count": 426,
+    "sha256": "e8c1a63285d7392ddfc1aa49508a270613a96a1419560b66069ff97e3d774442",
+    "observed_source_dates": {
+      "Date": [
+        "20261107"
+      ]
+    },
+    "http_date_taipei": "2026-11-08T09:03:38+08:00"
+  },
+  {
+    "name": "otc-stock-quotes",
+    "source_url": "https://www.tpex.org.tw/openapi/v1/tpex_mainboard_daily_close_quotes",
+    "fetched_at": "2026-11-08T09:03:36.191349+08:00",
+    "status": 200,
+    "content_type": "application/json",
+    "http_date": "Sun, 08 Nov 2026 01:03:37 GMT",
+    "last_modified": "Sat, 07 Nov 2026 15:30:06 GMT",
+    "final_url": "https://www.tpex.org.tw/openapi/v1/tpex_mainboard_daily_close_quotes",
+    "row_count": 13618,
+    "sha256": "72b04cd3598c01f72817d7929eb4af419c36b5c98d3940b783bbf75220cea725",
+    "observed_source_dates": {
+      "Date": [
+        "1151106"
+      ]
+    },
+    "http_date_taipei": "2026-11-08T09:03:37+08:00"
+  },
+  {
+    "name": "otc-margin",
+    "source_url": "https://www.tpex.org.tw/openapi/v1/tpex_mainboard_margin_balance",
+    "fetched_at": "2026-11-08T09:03:36.192003+08:00",
+    "status": 200,
+    "content_type": "application/json",
+    "http_date": "Sun, 08 Nov 2026 01:03:37 GMT",
+    "last_modified": "Sat, 07 Nov 2026 15:30:07 GMT",
+    "final_url": "https://www.tpex.org.tw/openapi/v1/tpex_mainboard_margin_balance",
+    "row_count": 919,
+    "sha256": "b3a9350221b184d9ffaee7336542b1105402c7c8f38ffd39c4593e24d2e13c2d",
+    "observed_source_dates": {
+      "Date": [
+        "1151106"
+      ]
+    },
+    "http_date_taipei": "2026-11-08T09:03:37+08:00"
+  },
+  {
+    "name": "otc-events",
+    "source_url": "https://www.tpex.org.tw/openapi/v1/mopsfin_t187ap04_O",
+    "fetched_at": "2026-11-08T09:03:40.460913+08:00",
+    "status": 200,
+    "content_type": "application/json",
+    "http_date": "Sun, 08 Nov 2026 01:03:41 GMT",
+    "last_modified": "Sat, 07 Nov 2026 15:30:22 GMT",
+    "final_url": "https://www.tpex.org.tw/openapi/v1/mopsfin_t187ap04_O",
+    "row_count": 285,
+    "sha256": "5c05988991a02cc81f2b86ffabcd5104f78c2f48904de736e5cc62e2d8f22453",
+    "observed_source_dates": {
+      "Date": [
+        "1151107"
+      ],
+      "發言日期": [
+        "1151106"
+      ]
+    },
+    "http_date_taipei": "2026-11-08T09:03:41+08:00"
+  },
+  {
+    "name": "otc-revenue",
+    "source_url": "https://www.tpex.org.tw/openapi/v1/mopsfin_t187ap05_O",
+    "fetched_at": "2026-11-08T09:03:40.835035+08:00",
+    "status": 200,
+    "content_type": "application/json",
+    "http_date": "Sun, 08 Nov 2026 01:03:42 GMT",
+    "last_modified": "Sat, 07 Nov 2026 15:34:16 GMT",
+    "final_url": "https://www.tpex.org.tw/openapi/v1/mopsfin_t187ap05_O",
+    "row_count": 893,
+    "sha256": "a27fea120daa8ef4543bcbf6e31426cad2e0201111ee8d97916fbb5fce2727a6",
+    "observed_source_dates": {
+      "出表日期": [
+        "1151017"
+      ],
+      "資料年月": [
+        "11509"
+      ]
+    },
+    "http_date_taipei": "2026-11-08T09:03:42+08:00"
+  },
+  {
+    "name": "listed-stock-quotes",
+    "source_url": "https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL",
+    "fetched_at": "2026-11-08T09:03:43.964339+08:00",
+    "status": 200,
+    "content_type": "application/json",
+    "http_date": "Sun, 08 Nov 2026 01:03:44 GMT",
+    "last_modified": "Sat, 07 Nov 2026 21:20:44 GMT",
+    "final_url": "https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL",
+    "row_count": 1389,
+    "sha256": "6626f67d9b71529fe443e027c5028719687c3f85edd7e2e66647fc579f19248a",
+    "observed_source_dates": {
+      "Date": [
+        "1151106"
+      ]
+    },
+    "http_date_taipei": "2026-11-08T09:03:44+08:00"
+  },
+  {
+    "name": "listed-margin",
+    "source_url": "https://openapi.twse.com.tw/v1/exchangeReport/MI_MARGN",
+    "fetched_at": "2026-11-08T09:03:44.785325+08:00",
+    "status": 200,
+    "content_type": "application/json",
+    "http_date": "Sun, 08 Nov 2026 01:03:45 GMT",
+    "last_modified": "Sat, 07 Nov 2026 21:23:15 GMT",
+    "final_url": "https://openapi.twse.com.tw/v1/exchangeReport/MI_MARGN",
+    "row_count": 1306,
+    "sha256": "edb0c86065bf6fa4ccc7628cb900022ac966491aded6cc890763b097dce2246d",
+    "observed_source_dates": {},
+    "http_date_taipei": "2026-11-08T09:03:45+08:00"
+  },
+  {
+    "name": "listed-events",
+    "source_url": "https://openapi.twse.com.tw/v1/opendata/t187ap04_L",
+    "fetched_at": "2026-11-08T09:03:44.790346+08:00",
+    "status": 200,
+    "content_type": "application/json",
+    "http_date": "Sun, 08 Nov 2026 01:03:45 GMT",
+    "last_modified": "Sat, 07 Nov 2026 21:24:29 GMT",
+    "final_url": "https://openapi.twse.com.tw/v1/opendata/t187ap04_L",
+    "row_count": 5,
+    "sha256": "dc7e8ff888c5bdcb37096db725c9998ba626184193d00576dcb5be8336536b43",
+    "observed_source_dates": {
+      "出表日期": [
+        "1151108"
+      ],
+      "發言日期": [
+        "1151107"
+      ]
+    },
+    "http_date_taipei": "2026-11-08T09:03:45+08:00"
+  },
+  {
+    "name": "listed-revenue",
+    "source_url": "https://openapi.twse.com.tw/v1/opendata/t187ap05_L",
+    "fetched_at": "2026-11-08T09:03:45.427682+08:00",
+    "status": 200,
+    "content_type": "application/json",
+    "http_date": "Sun, 08 Nov 2026 01:03:46 GMT",
+    "last_modified": "Sat, 07 Nov 2026 21:24:39 GMT",
+    "final_url": "https://openapi.twse.com.tw/v1/opendata/t187ap05_L",
+    "row_count": 1088,
+    "sha256": "a58c04b3bdc2b94632027018ca4f09f6ad053848addb7b9580b372626542fc17",
+    "observed_source_dates": {
+      "出表日期": [
+        "1151017"
+      ],
+      "資料年月": [
+        "11509"
+      ]
+    },
+    "http_date_taipei": "2026-11-08T09:03:46+08:00"
+  }
+]

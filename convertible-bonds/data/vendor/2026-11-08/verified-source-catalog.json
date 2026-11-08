@@ -1,0 +1,180 @@
+{
+  "verified_at_taipei": "2026-11-08",
+  "scope": "Only the named documented open datasets; not blanket permission for all websites",
+  "sources": [
+    {
+      "dataset_id": "cb-master",
+      "method": "GET",
+      "url": "https://www.tpex.org.tw/openapi/v1/bond_ISSBD5_data",
+      "official_schema_url": "https://www.tpex.org.tw/openapi/swagger.json",
+      "license_metadata_url": "https://data.gov.tw/dataset/11406",
+      "license": "政府資料開放授權條款－第1版",
+      "license_url": "https://data.gov.tw/license",
+      "attribution_required": true,
+      "raw_path": "cb-master.raw.json",
+      "sample_path": "cb-master.sample.json",
+      "observed_source_dates": {
+        "Date": [
+          "20261107"
+        ]
+      },
+      "history_parameters_verified": false
+    },
+    {
+      "dataset_id": "otc-stock-quotes",
+      "method": "GET",
+      "url": "https://www.tpex.org.tw/openapi/v1/tpex_mainboard_daily_close_quotes",
+      "official_schema_url": "https://www.tpex.org.tw/openapi/swagger.json",
+      "license_metadata_url": "https://data.gov.tw/dataset/11370",
+      "license": "政府資料開放授權條款－第1版",
+      "license_url": "https://data.gov.tw/license",
+      "attribution_required": true,
+      "raw_path": "otc-stock-quotes.raw.json",
+      "sample_path": "otc-stock-quotes.sample.json",
+      "observed_source_dates": {
+        "Date": [
+          "1151106"
+        ]
+      },
+      "history_parameters_verified": false
+    },
+    {
+      "dataset_id": "otc-margin",
+      "method": "GET",
+      "url": "https://www.tpex.org.tw/openapi/v1/tpex_mainboard_margin_balance",
+      "official_schema_url": "https://www.tpex.org.tw/openapi/swagger.json",
+      "license_metadata_url": "https://data.gov.tw/dataset/11387",
+      "license": "政府資料開放授權條款－第1版",
+      "license_url": "https://data.gov.tw/license",
+      "attribution_required": true,
+      "raw_path": "otc-margin.raw.json",
+      "sample_path": "otc-margin.sample.json",
+      "observed_source_dates": {
+        "Date": [
+          "1151106"
+        ]
+      },
+      "history_parameters_verified": false
+    },
+    {
+      "dataset_id": "otc-events",
+      "method": "GET",
+      "url": "https://www.tpex.org.tw/openapi/v1/mopsfin_t187ap04_O",
+      "official_schema_url": "https://www.tpex.org.tw/openapi/swagger.json",
+      "license_metadata_url": "https://data.gov.tw/dataset/18418",
+      "license": "政府資料開放授權條款－第1版",
+      "license_url": "https://data.gov.tw/license",
+      "attribution_required": true,
+      "raw_path": "otc-events.raw.json",
+      "sample_path": "otc-events.sample.json",
+      "observed_source_dates": {
+        "Date": [
+          "1151107"
+        ],
+        "發言日期": [
+          "1151106"
+        ]
+      },
+      "history_parameters_verified": false
+    },
+    {
+      "dataset_id": "otc-revenue",
+      "method": "GET",
+      "url": "https://www.tpex.org.tw/openapi/v1/mopsfin_t187ap05_O",
+      "official_schema_url": "https://www.tpex.org.tw/openapi/swagger.json",
+      "license_metadata_url": "https://data.gov.tw/dataset/56510",
+      "license": "政府資料開放授權條款－第1版",
+      "license_url": "https://data.gov.tw/license",
+      "attribution_required": true,
+      "raw_path": "otc-revenue.raw.json",
+      "sample_path": "otc-revenue.sample.json",
+      "observed_source_dates": {
+        "出表日期": [
+          "1151017"
+        ],
+        "資料年月": [
+          "11509"
+        ]
+      },
+      "history_parameters_verified": false
+    },
+    {
+      "dataset_id": "listed-stock-quotes",
+      "method": "GET",
+      "url": "https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL",
+      "official_schema_url": "https://openapi.twse.com.tw/v1/swagger.json",
+      "license_metadata_url": "https://data.gov.tw/dataset/11549",
+      "license": "政府資料開放授權條款－第1版",
+      "license_url": "https://data.gov.tw/license",
+      "attribution_required": true,
+      "raw_path": "listed-stock-quotes.raw.json",
+      "sample_path": "listed-stock-quotes.sample.json",
+      "observed_source_dates": {
+        "Date": [
+          "1151106"
+        ]
+      },
+      "history_parameters_verified": false
+    },
+    {
+      "dataset_id": "listed-margin",
+      "method": "GET",
+      "url": "https://openapi.twse.com.tw/v1/exchangeReport/MI_MARGN",
+      "official_schema_url": "https://openapi.twse.com.tw/v1/swagger.json",
+      "license_metadata_url": "https://data.gov.tw/dataset/11680",
+      "license": "政府資料開放授權條款－第1版",
+      "license_url": "https://data.gov.tw/license",
+      "attribution_required": true,
+      "raw_path": "listed-margin.raw.json",
+      "sample_path": "listed-margin.sample.json",
+      "observed_source_dates": {},
+      "history_parameters_verified": false
+    },
+    {
+      "dataset_id": "listed-events",
+      "method": "GET",
+      "url": "https://openapi.twse.com.tw/v1/opendata/t187ap04_L",
+      "official_schema_url": "https://openapi.twse.com.tw/v1/swagger.json",
+      "license_metadata_url": "https://data.gov.tw/dataset/18415",
+      "license": "政府資料開放授權條款－第1版",
+      "license_url": "https://data.gov.tw/license",
+      "attribution_required": true,
+      "raw_path": "listed-events.raw.json",
+      "sample_path": "listed-events.sample.json",
+      "observed_source_dates": {
+        "出表日期": [
+          "1151108"
+        ],
+        "發言日期": [
+          "1151107"
+        ]
+      },
+      "history_parameters_verified": false
+    },
+    {
+      "dataset_id": "listed-revenue",
+      "method": "GET",
+      "url": "https://openapi.twse.com.tw/v1/opendata/t187ap05_L",
+      "official_schema_url": "https://openapi.twse.com.tw/v1/swagger.json",
+      "license_metadata_url": "https://data.gov.tw/dataset/18420",
+      "license": "政府資料開放授權條款－第1版",
+      "license_url": "https://data.gov.tw/license",
+      "attribution_required": true,
+      "raw_path": "listed-revenue.raw.json",
+      "sample_path": "listed-revenue.sample.json",
+      "observed_source_dates": {
+        "出表日期": [
+          "1151017"
+        ],
+        "資料年月": [
+          "11509"
+        ]
+      },
+      "history_parameters_verified": false
+    }
+  ],
+  "not_acquired": [
+    "cb_daily_quotes",
+    "current_effective_conversion_price_history"
+  ]
+}
