@@ -1,0 +1,32 @@
+name: CB research CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+    paths:
+      - "convertible-bonds/**"
+      - ".github/workflows/cb-research-ci.yml"
+      - ".github/workflows/cb-research-daily.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: convertible-bonds
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: convertible-bonds/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run lint
+      - run: npm run build
+      - run: node scripts/verify-pages-subpath.mjs

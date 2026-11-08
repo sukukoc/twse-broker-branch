@@ -1,0 +1,38 @@
+{
+  "name": "cb-research-radar",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite --host 0.0.0.0 --port 43127 --strictPort",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0 --port 43127 --strictPort",
+    "update": "tsx scripts/update.ts",
+    "test": "vitest run",
+    "lint": "tsc --noEmit",
+    "verify:pages": "node scripts/verify-pages-subpath.mjs"
+  },
+  "dependencies": {
+    "@radix-ui/react-slot": "^1.5.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "tailwind-merge": "^3.7.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.16",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^5.1.2",
+    "eslint": "^9",
+    "happy-dom": "^17.4.4",
+    "tailwindcss": "^4",
+    "tsx": "^4.23.15",
+    "typescript": "^5",
+    "vite": "^7.3.7",
+    "vitest": "^3.2.4"
+  }
+}

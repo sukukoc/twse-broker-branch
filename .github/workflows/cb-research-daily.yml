@@ -1,0 +1,137 @@
+name: CB research daily
+
+# Weekdays 18:00 Asia/Taipei. Taipei is UTC+8 all year, so this is 10:00 UTC.
+# GitHub schedules only the copy of this file on the default branch.
+# There is no second schedule for this subsite.
+on:
+  schedule:
+    - cron: "0 10 * * 1-5"
+  workflow_dispatch:
+
+# Queue behind another run of this workflow. Broker publishes are separate
+# git pushes and are not cancelled or rewritten here.
+concurrency:
+  group: cb-research-publish
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pages: write
+
+jobs:
+  update-and-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: convertible-bonds/package-lock.json
+
+      - name: Install, test, and typecheck
+        working-directory: convertible-bonds
+        run: |
+          npm ci
+          npm test
+          npm run lint
+
+      - name: Fetch the verified official OpenAPI snapshots
+        working-directory: convertible-bonds
+        env:
+          CB_SCHEDULING: github-actions
+        run: npm run update
+
+      - name: Build and check the subsite paths
+        working-directory: convertible-bonds
+        run: |
+          npm run build
+          node scripts/verify-pages-subpath.mjs
+          bash scripts/publish-to-docs.sh
+
+      - name: Commit only convertible-bond paths
+        id: commit
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if ! git diff --quiet -- docs/data docs/index.html docs/.nojekyll publish_site.py scripts README.md requirements.txt; then
+            echo "This job would change the broker radar. Refusing to commit."
+            git status --porcelain -- docs/data docs/index.html publish_site.py scripts README.md
+            exit 1
+          fi
+          git add -A -- \
+            convertible-bonds/data/cb-radar.sqlite \
+            convertible-bonds/data/published \
+            convertible-bonds/public/data \
+            docs/convertible-bonds
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+            echo "No convertible-bond file changes."
+            exit 0
+          fi
+          git commit -m "資料：可轉債研究目錄更新"
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Rebase onto main and push
+        id: push
+        run: |
+          set -euo pipefail
+          if [ "${{ steps.commit.outputs.changed }}" != "true" ]; then
+            echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          for attempt in 1 2 3 4 5; do
+            git fetch origin main
+            if git pull --rebase origin main && git push origin HEAD:main; then
+              echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            echo "push attempt ${attempt} did not land"
+            git rebase --abort || true
+            sleep $((attempt * 3))
+          done
+          echo "Could not push without rewriting broker commits."
+          exit 1
+
+      - name: Request a Pages build of the latest main revision
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          # GITHUB_TOKEN pushes do not start pages-build-deployment.
+          # pages: write is the documented permission to request a Pages build.
+          # The build uses the latest commit on the default branch, so broker
+          # files already on main stay in the published tree.
+          SHA="${{ steps.push.outputs.sha }}"
+          echo "Requesting Pages build after ${SHA}"
+          gh api --method POST -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/pages/builds" > "$RUNNER_TEMP/pages-build.json"
+          cat "$RUNNER_TEMP/pages-build.json"
+          for attempt in $(seq 1 40); do
+            sleep 15
+            git fetch --quiet origin main
+            TIP="$(git rev-parse origin/main)"
+            gh api "/repos/${GITHUB_REPOSITORY}/pages/builds/latest" > "$RUNNER_TEMP/pages-latest.json"
+            STATUS="$(jq -r .status "$RUNNER_TEMP/pages-latest.json")"
+            COMMIT="$(jq -r .commit "$RUNNER_TEMP/pages-latest.json")"
+            echo "latest pages build status=${STATUS} commit=${COMMIT} origin/main=${TIP}"
+            if [ "$STATUS" = "errored" ] && [ "$COMMIT" = "$TIP" ]; then
+              cat "$RUNNER_TEMP/pages-latest.json"
+              exit 1
+            fi
+            if [ "$STATUS" = "built" ] && [ "$COMMIT" = "$TIP" ] && git merge-base --is-ancestor "$SHA" "$COMMIT"; then
+              echo "Pages built ${COMMIT}, which contains ${SHA}"
+              exit 0
+            fi
+          done
+          echo "Timed out waiting for Pages to build a main revision that contains ${SHA}"
+          exit 1

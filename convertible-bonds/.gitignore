@@ -1,0 +1,14 @@
+node_modules
+dist
+.vite
+.next
+coverage
+*.log
+.DS_Store
+.env*
+data/raw
+data/backups
+data/*.sqlite-wal
+data/*.sqlite-shm
+*.tmp
+next-env.d.ts

@@ -5,6 +5,10 @@
 
 🔗 網頁：https://sukukoc.github.io/twse-broker-branch/
 
+可轉債研究目錄是同一個網站下的獨立子頁，不改這頁的分點資料：https://sukukoc.github.io/twse-broker-branch/convertible-bonds/
+
+原始碼在 `convertible-bonds/`。`.github/workflows/cb-research-daily.yml` 在週一到週五 18:00（台北時間，UTC 10:00）向已核對的官方 OpenAPI 更新，只提交可轉債目錄與 `docs/convertible-bonds/`，再請求 GitHub Pages 重建。券商分點仍由 `publish_site.py` 寫入 `docs/data/`。
+
 ## 網頁內容（仿「權證小哥」權證買賣超表）
 
 - 上方：**統計天數**（1/2/3/5/10/20 日加總）、**日期**、**搜尋股票**（代號或名稱，直接打開該標的分點）、**認購／認售** 切換。
