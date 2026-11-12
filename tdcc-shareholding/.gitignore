@@ -1,0 +1,4 @@
+raw/
+*.log
+tdcc_shareholding_1y.csv
+__pycache__/

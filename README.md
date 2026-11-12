@@ -72,3 +72,7 @@ cd .. && python3 publish_site.py 2026-10-29 --src scripts
 - **戰績**：FIFO 配對算已實現／未實現／當沖損益；「進場」＝某日某標的某方向淨買 ≥50 萬，看之後 1/3/5/10 個交易日的權證籃子市值（或標的漲跌）。
 - 證交所買賣日報表只提供當日，所以分點歷史只從開始抓的那天起累積。
 - 單獨執行：`python3 scripts/branch_radar.py 2026-10-29 /path/to/broker_branch`
+
+## 集保戶股權分散表
+
+近一年集保戶股權分散表（上市櫃股票、ETF、TDR）放在 [`tdcc-shareholding/`](tdcc-shareholding/)，與分點資料分開存放，不影響本站的 GitHub Pages 網頁。資料來源是[集保結算所查詢頁](https://www.tdcc.com.tw/portal/zh/smWeb/qryStock)。
