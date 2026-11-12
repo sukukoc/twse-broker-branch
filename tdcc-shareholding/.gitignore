@@ -2,3 +2,4 @@ raw/
 *.log
 tdcc_shareholding_1y.csv
 __pycache__/
+!tdcc_shareholding_1y.zip

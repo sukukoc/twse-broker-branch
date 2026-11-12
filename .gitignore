@@ -11,3 +11,6 @@ scripts/*.json
 .env
 *.pat
 scripts/market_cache/
+
+# 集保股權分散表的 CSV 壓縮檔（未壓縮 CSV 超過 50MB，只收 zip）
+!tdcc-shareholding/tdcc_shareholding_1y.zip
